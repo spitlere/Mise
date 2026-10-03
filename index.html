@@ -1,1670 +1,751 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MacroPulse - Daily Personal Macro & Calorie Calculator</title>
-
-    <!-- iOS Web App & PWA Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="MacroPulse">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#0f172a">
-
-    <!-- Custom 180x180 Apple Touch Icon & Favicon -->
-    <link id="appleTouchIcon" rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link id="appFavicon" rel="icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            900: '#312e81',
-                        },
-                        protein: '#10b981', // Emerald
-                        carbs: '#f59e0b',   // Amber
-                        fats: '#f43f5e'     // Rose
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mise - Macro & Meal Tracker</title>
+  
+  <!-- Dynamic Apple Touch Icon Link -->
+  <link rel="apple-touch-icon" id="apple-touch-icon" href="apple-touch-icon-1.png">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    // Tailwind configuration for custom brand colors and smooth theme support
+    tailwind.config = {
+      darkMode: ['class', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#e73576',
+              hover: '#c42960',
+              light: '#fce7f0'
             }
+          }
         }
-    </script>
-    <!-- Google Fonts & FontAwesome Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      }
+    }
+  </script>
 
-    <!-- Firebase SDK Modules for Cloud Data Sync -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  <style>
+    /* Theme color variables */
+    :root {
+      --bg-main: #121212;
+      --bg-card: #1e1e1e;
+      --bg-input: #2a2a2a;
+      --bg-nav: #18181b;
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --border-color: #27272a;
+      --brand-accent: #e73576;
+    }
 
-        window.fbSDK = {
-            initializeApp, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged,
-            getFirestore, doc, setDoc, getDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot
-        };
-    </script>
-    <style>
-        body { 
-            font-family: 'Inter', sans-serif;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        /* Custom range slider styling */
-        input[type=range] {
-            -webkit-appearance: none;
-            background: transparent;
-        }
-        input[type=range]:focus {
-            outline: none;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 18px;
-            width: 18px;
-            border-radius: 50%;
-            background: #ffffff;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            margin-top: -6px;
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(51, 65, 85, 0.8);
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(71, 85, 105, 1);
-        }
-    </style>
+    html[data-theme="light"] {
+      --bg-main: #f8f9fa;
+      --bg-card: #ffffff;
+      --bg-input: #f1f5f9;
+      --bg-nav: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --border-color: #e2e8f0;
+    }
+
+    html[data-theme="system"] {
+      @media (prefers-color-scheme: light) {
+        --bg-main: #f8f9fa;
+        --bg-card: #ffffff;
+        --bg-input: #f1f5f9;
+        --bg-nav: #ffffff;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --border-color: #e2e8f0;
+      }
+      @media (prefers-color-scheme: dark) {
+        --bg-main: #121212;
+        --bg-card: #1e1e1e;
+        --bg-input: #2a2a2a;
+        --bg-nav: #18181b;
+        --text-primary: #f3f4f6;
+        --text-secondary: #9ca3af;
+        --border-color: #27272a;
+      }
+    }
+
+    /* Prevent horizontal viewport overflow on all mobile screens */
+    html, body {
+      max-width: 100vw;
+      overflow-x: hidden;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      transition: background-color 0.25s ease, color 0.25s ease;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.3);
+      border-radius: 9999px;
+    }
+
+    .glass-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+    }
+
+    .app-input {
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .app-input:focus {
+      border-color: var(--brand-accent);
+      outline: none;
+    }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white antialiased pb-12">
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-brand selection:text-white">
 
-    <!-- Top Header Navigation -->
-    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 pt-1">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center shadow-lg shadow-brand-500/20">
-                    <i class="fa-solid fa-bolt text-white text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                        MacroPulse <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30 font-medium">Pro</span>
-                    </h1>
-                    <p class="text-xs text-slate-400 hidden sm:block">Personal Daily Nutrition & Macro Strategy Calculator</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2 sm:gap-3">
-                <!-- Custom Storage Location Trigger -->
-                <button onclick="openStorageModal()" title="Storage Location & Sync" class="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center gap-1.5 text-xs bg-slate-850">
-                    <i class="fa-solid fa-folder-tree text-brand-400"></i>
-                    <span class="hidden md:inline font-medium" id="headerStorageLabel">Storage</span>
-                </button>
-
-                <button onclick="openIconCustomizer()" title="Custom App Icon" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center gap-1 text-xs">
-                    <i class="fa-solid fa-icons text-brand-400"></i>
-                    <span class="hidden md:inline">App Icon</span>
-                </button>
-
-                <button onclick="exportDataToFile()" title="Save Local Data Backup File" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center gap-1 text-xs">
-                    <i class="fa-solid fa-download text-emerald-400"></i>
-                    <span class="hidden md:inline">Backup</span>
-                </button>
-
-                <!-- Unit Switcher -->
-                <div class="bg-slate-800 p-1 rounded-lg border border-slate-700 flex text-xs font-semibold">
-                    <button id="unitImperialBtn" onclick="setUnits('imperial')" class="px-2.5 sm:px-3 py-1.5 rounded-md transition-all bg-brand-600 text-white shadow">Imperial (lb, in)</button>
-                    <button id="unitMetricBtn" onclick="setUnits('metric')" class="px-2.5 sm:px-3 py-1.5 rounded-md transition-all text-slate-400 hover:text-white">Metric (kg, cm)</button>
-                </div>
-
-                <!-- Reset & Copy Actions -->
-                <button onclick="resetDefaults()" title="Reset to Defaults" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 border border-transparent hover:border-slate-700 transition">
-                    <i class="fa-solid fa-rotate-left text-sm"></i>
-                </button>
-                <button onclick="exportSummary()" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition">
-                    <i class="fa-regular fa-copy"></i>
-                    <span class="hidden sm:inline">Export Plan</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-        <!-- LEFT COLUMN: Inputs & Configuration (5 Cols) -->
-        <section class="lg:col-span-5 space-y-6">
-
-            <!-- Card 1: Personal Biometrics -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex items-center justify-between mb-4 border-b border-slate-800/80 pb-3">
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                        <i class="fa-solid fa-user-gear text-brand-500"></i> 1. Body & Biometrics
-                    </h2>
-                    <span class="text-xs text-slate-500" id="bmrDisplay">BMR: -- kcal</span>
-                </div>
-
-                <div class="space-y-4">
-                    <!-- Biological Sex -->
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Biological Sex</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" onclick="setGender('male')" id="genderMaleBtn" class="py-2 px-3 text-xs font-semibold rounded-lg border border-brand-500 bg-brand-500/10 text-brand-400 flex items-center justify-center gap-2 transition">
-                                <i class="fa-solid fa-mars"></i> Male
-                            </button>
-                            <button type="button" onclick="setGender('female')" id="genderFemaleBtn" class="py-2 px-3 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600 flex items-center justify-center gap-2 transition">
-                                <i class="fa-solid fa-venus"></i> Female
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Age & Weight Grid -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Age (Years)</label>
-                            <input type="number" id="inputAge" value="28" min="15" max="100" oninput="updateCalculations()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-medium focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Weight (<span class="unit-weight-label">lbs</span>)</label>
-                            <input type="number" id="inputWeight" value="175" min="30" max="500" step="0.5" oninput="updateCalculations()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-medium focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none">
-                        </div>
-                    </div>
-
-                    <!-- Height Section (Imperial vs Metric) -->
-                    <div id="heightImperialWrapper">
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Height (Feet & Inches)</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="relative">
-                                <input type="number" id="inputHeightFt" value="5" min="3" max="8" oninput="updateCalculations()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-medium focus:ring-2 focus:ring-brand-500 outline-none">
-                                <span class="absolute right-3 top-2 text-xs text-slate-500">ft</span>
-                            </div>
-                            <div class="relative">
-                                <input type="number" id="inputHeightIn" value="10" min="0" max="11" oninput="updateCalculations()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-medium focus:ring-2 focus:ring-brand-500 outline-none">
-                                <span class="absolute right-3 top-2 text-xs text-slate-500">in</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="heightMetricWrapper" class="hidden">
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Height (Centimeters)</label>
-                        <div class="relative">
-                            <input type="number" id="inputHeightCm" value="178" min="100" max="250" oninput="updateCalculations()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-medium focus:ring-2 focus:ring-brand-500 outline-none">
-                            <span class="absolute right-3 top-2 text-xs text-slate-500">cm</span>
-                        </div>
-                    </div>
-
-                    <!-- Activity Level -->
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Daily Activity Level</label>
-                        <select id="selectActivity" onchange="updateCalculations()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
-                            <option value="1.2">Sedentary (Office job, minimal exercise)</option>
-                            <option value="1.375" selected>Lightly Active (1-3 days/wk workouts)</option>
-                            <option value="1.55">Moderately Active (3-5 days/wk moderate workouts)</option>
-                            <option value="1.725">Very Active (6-7 days/wk intense workouts)</option>
-                            <option value="1.9">Extremely Active (Physical job + daily training)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 2: Goal & Target Calories -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex items-center justify-between mb-4 border-b border-slate-800/80 pb-3">
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                        <i class="fa-solid fa-bullseye text-brand-500"></i> 2. Calorie Goal Strategy
-                    </h2>
-                    <span class="text-xs text-slate-500" id="tdeeDisplay">TDEE: -- kcal</span>
-                </div>
-
-                <div class="space-y-4">
-                    <!-- Primary Fitness Goal Presets -->
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Primary Fitness Goal</label>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                            <button type="button" onclick="setGoal('cut_aggressive')" id="goalCutAggressive" class="goal-btn py-2 px-2 text-xs font-medium rounded-lg border border-slate-700 bg-slate-800/40 text-slate-300 hover:border-slate-600 transition text-center">
-                                Aggressive Cut (-20%)
-                            </button>
-                            <button type="button" onclick="setGoal('cut_moderate')" id="goalCutModerate" class="goal-btn py-2 px-2 text-xs font-medium rounded-lg border border-brand-500 bg-brand-500/10 text-brand-400 transition text-center">
-                                Weight Loss (-15%)
-                            </button>
-                            <button type="button" onclick="setGoal('maintain')" id="goalMaintain" class="goal-btn py-2 px-2 text-xs font-medium rounded-lg border border-slate-700 bg-slate-800/40 text-slate-300 hover:border-slate-600 transition text-center">
-                                Maintain Weight
-                            </button>
-                            <button type="button" onclick="setGoal('bulk')" id="goalBulk" class="goal-btn py-2 px-2 text-xs font-medium rounded-lg border border-slate-700 bg-slate-800/40 text-slate-300 hover:border-slate-600 transition text-center">
-                                Lean Muscle (+10%)
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Direct Target Calorie Mode Toggle -->
-                    <div class="pt-2 border-t border-slate-800">
-                        <div class="flex items-center justify-between mb-2">
-                            <label for="overrideCaloriesToggle" class="text-xs font-medium text-slate-300 flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" id="overrideCaloriesToggle" onchange="toggleCalorieOverride()" class="rounded bg-slate-800 border-slate-700 text-brand-600 focus:ring-brand-500 h-4 w-4">
-                                Manual Target Calorie Override
-                            </label>
-                            <span class="text-[10px] text-slate-500">Custom Intake</span>
-                        </div>
-
-                        <div id="manualCalorieContainer" class="hidden">
-                            <div class="relative">
-                                <input type="number" id="inputTargetCalories" value="2200" step="25" min="800" max="8000" oninput="updateCalculations()" class="w-full bg-slate-800 border border-brand-500/50 rounded-lg px-3 py-2 text-sm font-bold text-brand-400 focus:ring-2 focus:ring-brand-500 outline-none">
-                                <span class="absolute right-3 top-2.5 text-xs text-slate-400 font-normal">kcal/day</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 3: Macro Distribution Strategy -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex items-center justify-between mb-4 border-b border-slate-800/80 pb-3">
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-brand-500"></i> 3. Custom Macro Ratios
-                    </h2>
-                    <div class="flex gap-1 bg-slate-800 p-0.5 rounded-md text-[11px]">
-                        <button id="macroModePctBtn" onclick="setMacroMode('percentage')" class="px-2 py-0.5 rounded bg-brand-600 text-white font-medium">Percentage</button>
-                        <button id="macroModeGramsBtn" onclick="setMacroMode('bodyweight')" class="px-2 py-0.5 rounded text-slate-400 font-medium hover:text-white">g/lb Bodyweight</button>
-                    </div>
-                </div>
-
-                <!-- Strategy Presets -->
-                <div class="mb-4">
-                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Diet Ratio Presets</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px]">
-                        <button onclick="applyRatioPreset(30, 40, 30)" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded border border-slate-700/60 transition">Balanced (30/40/30)</button>
-                        <button onclick="applyRatioPreset(40, 35, 25)" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded border border-slate-700/60 transition">High Protein (40/35/25)</button>
-                        <button onclick="applyRatioPreset(25, 10, 65)" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded border border-slate-700/60 transition">Keto Low-Carb (25/10/65)</button>
-                        <button onclick="applyRatioPreset(35, 50, 15)" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded border border-slate-700/60 transition">Low Fat (35/50/15)</button>
-                    </div>
-                </div>
-
-                <!-- PERCENTAGE SLIDERS SECTION -->
-                <div id="macroPercentageSection" class="space-y-4">
-                    <!-- Protein % Slider -->
-                    <div>
-                        <div class="flex justify-between items-center text-xs mb-1">
-                            <span class="font-semibold text-protein flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-protein inline-block"></span> Protein
-                            </span>
-                            <span class="font-mono text-slate-200"><span id="valProteinPct">30</span>% (<span id="valProteinGramsPct">0</span>g)</span>
-                        </div>
-                        <input type="range" id="sliderProtein" min="10" max="60" value="30" oninput="onRatioSliderChange('protein')" class="w-full accent-protein">
-                    </div>
-
-                    <!-- Carbs % Slider -->
-                    <div>
-                        <div class="flex justify-between items-center text-xs mb-1">
-                            <span class="font-semibold text-carbs flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-carbs inline-block"></span> Carbohydrates
-                            </span>
-                            <span class="font-mono text-slate-200"><span id="valCarbPct">40</span>% (<span id="valCarbGramsPct">0</span>g)</span>
-                        </div>
-                        <input type="range" id="sliderCarbs" min="5" max="70" value="40" oninput="onRatioSliderChange('carbs')" class="w-full accent-carbs">
-                    </div>
-
-                    <!-- Fat % Slider -->
-                    <div>
-                        <div class="flex justify-between items-center text-xs mb-1">
-                            <span class="font-semibold text-fats flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-fats inline-block"></span> Fats
-                            </span>
-                            <span class="font-mono text-slate-200"><span id="valFatPct">30</span>% (<span id="valFatGramsPct">0</span>g)</span>
-                        </div>
-                        <input type="range" id="sliderFat" min="10" max="70" value="30" oninput="onRatioSliderChange('fat')" class="w-full accent-fats">
-                    </div>
-
-                    <div class="flex justify-between items-center text-xs text-slate-400 bg-slate-950/50 p-2 rounded-lg border border-slate-800">
-                        <span>Total Ratio Balance:</span>
-                        <span id="totalPctBadge" class="font-bold text-emerald-400 font-mono">100%</span>
-                    </div>
-                </div>
-
-                <!-- BODYWEIGHT GRAMS PER UNIT SECTION -->
-                <div id="macroBodyweightSection" class="space-y-4 hidden">
-                    <p class="text-xs text-slate-400">Set targeted grams per unit of body weight. Remaining daily calories will automatically be allocated to Carbohydrates.</p>
-                    
-                    <div>
-                        <label class="block text-xs font-semibold text-protein mb-1">Protein target per <span class="unit-weight-label">lb</span></label>
-                        <div class="flex items-center gap-2">
-                            <input type="number" id="inputProteinGPerWeight" value="1.0" step="0.1" min="0.5" max="2.0" oninput="updateCalculations()" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-mono text-white w-full outline-none focus:border-protein">
-                            <span class="text-xs text-slate-400 font-mono">g/<span class="unit-weight-label">lb</span></span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-fats mb-1">Fat target per <span class="unit-weight-label">lb</span></label>
-                        <div class="flex items-center gap-2">
-                            <input type="number" id="inputFatGPerWeight" value="0.35" step="0.05" min="0.15" max="1.0" oninput="updateCalculations()" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-mono text-white w-full outline-none focus:border-fats">
-                            <span class="text-xs text-slate-400 font-mono">g/<span class="unit-weight-label">lb</span></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- RIGHT COLUMN: Analytics, Dashboard & Food Portion Checker (7 Cols) -->
-        <section class="lg:col-span-7 space-y-6">
-
-            <!-- Hero Summary Card -->
-            <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 border border-slate-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
-                <div class="absolute -top-12 -right-12 w-48 h-48 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
-                    
-                    <div class="w-full sm:w-1/2 space-y-4">
-                        <div>
-                            <span class="text-xs font-bold uppercase tracking-wider text-brand-400">Target Intake</span>
-                            <div class="flex items-baseline gap-2 mt-0.5">
-                                <h3 id="displayTargetCalories" class="text-4xl font-black text-white tracking-tight">2,200</h3>
-                                <span class="text-slate-400 text-sm font-medium">kcal / day</span>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="bg-slate-950/60 border border-slate-800 p-2.5 rounded-xl text-center">
-                                <div class="text-[10px] font-bold uppercase text-protein tracking-wider">Protein</div>
-                                <div id="cardProteinGrams" class="text-lg font-bold text-white font-mono mt-0.5">165g</div>
-                                <div id="cardProteinCalories" class="text-[10px] text-slate-400">660 kcal</div>
-                            </div>
-                            <div class="bg-slate-950/60 border border-slate-800 p-2.5 rounded-xl text-center">
-                                <div class="text-[10px] font-bold uppercase text-carbs tracking-wider">Carbs</div>
-                                <div id="cardCarbGrams" class="text-lg font-bold text-white font-mono mt-0.5">220g</div>
-                                <div id="cardCarbCalories" class="text-[10px] text-slate-400">880 kcal</div>
-                            </div>
-                            <div class="bg-slate-950/60 border border-slate-800 p-2.5 rounded-xl text-center">
-                                <div class="text-[10px] font-bold uppercase text-fats tracking-wider">Fats</div>
-                                <div id="cardFatGrams" class="text-lg font-bold text-white font-mono mt-0.5">73g</div>
-                                <div id="cardFatCalories" class="text-[10px] text-slate-400">660 kcal</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="w-full sm:w-1/2 flex flex-col items-center justify-center relative">
-                        <div class="w-44 h-44 relative">
-                            <canvas id="macroChart"></canvas>
-                            <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                                <span id="donutCenterPct" class="text-xl font-extrabold text-white">100%</span>
-                                <span class="text-[10px] text-slate-400 uppercase tracking-widest">Balanced</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-6 pt-4 border-t border-slate-800/80">
-                    <div class="flex justify-between text-xs text-slate-400 mb-1.5 font-medium">
-                        <span>Caloric Breakdown Ratio</span>
-                        <span id="ratioDetailString">30% P / 40% C / 30% F</span>
-                    </div>
-                    <div class="h-3 w-full bg-slate-800 rounded-full overflow-hidden flex p-0.5 gap-0.5">
-                        <div id="barProtein" class="bg-protein h-full rounded-l-full transition-all duration-300" style="width: 30%;"></div>
-                        <div id="barCarbs" class="bg-carbs h-full transition-all duration-300" style="width: 40%;"></div>
-                        <div id="barFats" class="bg-fats h-full rounded-r-full transition-all duration-300" style="width: 30%;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card: Meal Distribution Planner -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex items-center justify-between mb-4 border-b border-slate-800/80 pb-3">
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                        <i class="fa-solid fa-utensils text-brand-500"></i> Daily Meal Schedule Split
-                    </h2>
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs text-slate-400">Meals/Day:</span>
-                        <select id="selectMealCount" onchange="updateCalculations()" class="bg-slate-800 border border-slate-700 text-xs font-semibold rounded-md px-2 py-1 text-white outline-none">
-                            <option value="3">3 Meals</option>
-                            <option value="4" selected>4 Meals</option>
-                            <option value="5">5 Meals</option>
-                            <option value="6">6 Meals</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="mealBreakdownContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <!-- Dynamic meal boxes inserted by JavaScript -->
-                </div>
-            </div>
-
-            <!-- Card: Quick Food Portion Impact Calculator -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-3">
-                    <div>
-                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-calculator text-brand-500"></i> Quick Food Portion Impact
-                        </h2>
-                        <p class="text-xs text-slate-400">See how much of your daily target a specific food portion uses.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
-                    <div class="col-span-2 sm:col-span-1">
-                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Serving (Grams)</label>
-                        <input type="number" id="portionGrams" value="150" min="1" max="1000" oninput="calculatePortionImpact()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white font-medium outline-none focus:border-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-medium text-protein mb-1">Protein / 100g</label>
-                        <input type="number" id="portionPPer100" value="25" min="0" max="100" oninput="calculatePortionImpact()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white font-medium outline-none focus:border-protein">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-medium text-carbs mb-1">Carbs / 100g</label>
-                        <input type="number" id="portionCPer100" value="0" min="0" max="100" oninput="calculatePortionImpact()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white font-medium outline-none focus:border-carbs">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-medium text-fats mb-1">Fat / 100g</label>
-                        <input type="number" id="portionFPer100" value="3" min="0" max="100" oninput="calculatePortionImpact()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white font-medium outline-none focus:border-fats">
-                    </div>
-                </div>
-
-                <div class="mt-4 bg-slate-950/70 rounded-xl p-3 border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-                    <div class="flex items-center gap-4">
-                        <div>
-                            <span class="text-slate-400 block text-[10px]">Total Calories</span>
-                            <span id="portionResultKcal" class="font-bold text-white font-mono text-sm">188 kcal</span>
-                        </div>
-                        <div>
-                            <span class="text-protein block text-[10px]">Protein</span>
-                            <span id="portionResultP" class="font-bold text-white font-mono">37.5g</span>
-                        </div>
-                        <div>
-                            <span class="text-carbs block text-[10px]">Carbs</span>
-                            <span id="portionResultC" class="font-bold text-white font-mono">0g</span>
-                        </div>
-                        <div>
-                            <span class="text-fats block text-[10px]">Fats</span>
-                            <span id="portionResultF" class="font-bold text-white font-mono">4.5g</span>
-                        </div>
-                    </div>
-                    <div id="portionBudgetUsage" class="text-right text-[11px] text-brand-400 font-semibold">
-                        Uses ~22.7% of Daily Protein Target
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card: Saved Recipes & Custom Meal Library -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex items-center justify-between mb-4 border-b border-slate-800/80 pb-3">
-                    <div>
-                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-book-bookmark text-brand-500"></i> Saved Recipes & Meal Library
-                        </h2>
-                        <p class="text-xs text-slate-400">Stored privately in user-defined location or device memory.</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="openAddRecipeModal()" class="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold flex items-center gap-1 transition">
-                            <i class="fa-solid fa-plus"></i> Add Recipe
-                        </button>
-                    </div>
-                </div>
-
-                <div id="recipeListContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <!-- Recipes dynamically populated -->
-                </div>
-            </div>
-
-        </section>
-    </main>
-
-    <!-- MODAL 1: Custom Storage Location Settings -->
-    <div id="storageModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-5">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-folder-tree text-brand-400"></i> Custom Storage & Data Location
-                </h3>
-                <button onclick="closeStorageModal()" class="text-slate-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <p class="text-xs text-slate-400 leading-relaxed">
-                Choose where MacroPulse saves your personal data, targets, and custom recipe library.
-            </p>
-
-            <div class="space-y-4 text-xs">
-                <!-- Option A: Direct File Handle (iCloud / Google Drive / Local Folder) -->
-                <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-cloud-arrow-up text-indigo-400 text-sm"></i>
-                            Option 1: Linked Local / Cloud File
-                        </span>
-                        <span id="linkedFileBadge" class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">Not Linked</span>
-                    </div>
-                    <p class="text-[11px] text-slate-400">
-                        Bind MacroPulse directly to a <code class="text-brand-300">.json</code> file in your <b>iCloud Drive</b>, <b>Google Drive Desktop Folder</b>, <b>OneDrive</b>, or local disk. All app updates write directly to this file handle in real-time.
-                    </p>
-                    <div class="flex gap-2">
-                        <button onclick="pickLinkedFile()" class="px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 transition">
-                            <i class="fa-solid fa-folder-open"></i> Choose / Create File Location
-                        </button>
-                        <button id="unlinkBtn" onclick="unlinkStorageFile()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-semibold rounded-lg text-xs hidden transition">
-                            Unlink File
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Option B: Custom Webhook / REST Endpoint -->
-                <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-network-wired text-amber-400 text-sm"></i>
-                            Option 2: Custom Remote Endpoint / Webhook
-                        </span>
-                        <label class="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-400">
-                            <input type="checkbox" id="customWebhookToggle" onchange="toggleCustomWebhook()" class="rounded bg-slate-800 border-slate-700 text-brand-600">
-                            Enable
-                        </label>
-                    </div>
-                    <p class="text-[11px] text-slate-400">
-                        Sync data automatically to your own Google Apps Script Web App URL, WebDAV server, Supabase, or REST Webhook.
-                    </p>
-                    <div id="webhookInputsContainer" class="space-y-2 hidden">
-                        <div>
-                            <label class="block text-[10px] text-slate-400 mb-1">Target Endpoint URL</label>
-                            <input type="url" id="customStorageUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 outline-none focus:border-brand-500">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-400 mb-1">Auth Bearer Token / API Key (Optional)</label>
-                            <input type="password" id="customStorageTokenInput" placeholder="Secret Key or Token" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 outline-none focus:border-brand-500">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Option C: Manual Backup Import / Export -->
-                <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-2">
-                    <span class="font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-file-import text-emerald-400 text-sm"></i>
-                        Option 3: Manual File Import
-                    </span>
-                    <p class="text-[11px] text-slate-400">
-                        Load a previously saved <code class="text-slate-300">.json</code> data backup file from any cloud drive or local folder.
-                    </p>
-                    <input type="file" id="importFileInput" accept=".json" onchange="importDataFromFile(event)" class="block w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-brand-400 hover:file:bg-slate-700">
-                </div>
-            </div>
-
-            <div class="pt-2 flex justify-end">
-                <button onclick="saveStorageSettings()" class="py-2.5 px-5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-lg shadow-brand-500/20">Save Storage Preferences</button>
-            </div>
-        </div>
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-30 w-full px-4 py-3 bg-[var(--bg-nav)] border-b border-[var(--border-color)] flex items-center justify-between shadow-sm">
+    <!-- Brand Logo & Title -->
+    <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
+      <div class="w-9 h-9 bg-brand text-white rounded-xl flex items-center justify-center font-black text-lg shadow-md shadow-brand/20">
+        <i class="fa-solid font-bold">M</i>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-[var(--text-primary)] leading-none">Mise</h1>
+        <span class="text-[10px] font-medium tracking-wider uppercase text-[var(--text-secondary)]">Daily Macro Studio</span>
+      </div>
     </div>
 
-    <!-- MODAL 2: Custom App Icon Creator -->
-    <div id="iconCustomizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-5">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-icons text-brand-400"></i> Custom iPhone App Icon
-                </h3>
-                <button onclick="closeIconCustomizer()" class="text-slate-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
+    <!-- Hamburger Menu Toggle Button -->
+    <button id="hamburger-btn" onclick="toggleMenu()" aria-label="Open Navigation Menu" class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-[var(--text-primary)] hover:border-brand/50 transition-all active:scale-95">
+      <i class="fa-solid fa-bars text-lg"></i>
+    </button>
+  </header>
 
-            <div class="flex flex-col items-center justify-center space-y-2 py-2">
-                <div id="iconPreviewBox" class="w-24 h-24 rounded-3xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center shadow-2xl shadow-brand-500/30 transition-all">
-                    <i id="iconPreviewSymbol" class="fa-solid fa-bolt text-white text-4xl"></i>
-                </div>
-                <span class="text-xs text-slate-400 font-medium">Home Screen Icon Preview</span>
-            </div>
+  <!-- Slide-over Drawer Backdrop -->
+  <div id="drawer-backdrop" onclick="toggleMenu(false)" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
-            <div class="space-y-4 text-xs">
-                <div>
-                    <label class="block font-semibold text-slate-300 mb-1.5">Background Gradient</label>
-                    <div class="grid grid-cols-5 gap-2">
-                        <button onclick="setIconGradient('from-brand-600 to-indigo-400', '#4f46e5')" class="h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-indigo-400 border border-white/20"></button>
-                        <button onclick="setIconGradient('from-emerald-600 to-teal-400', '#059669')" class="h-8 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-400 border border-white/20"></button>
-                        <button onclick="setIconGradient('from-amber-500 to-orange-400', '#d97706')" class="h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-orange-400 border border-white/20"></button>
-                        <button onclick="setIconGradient('from-rose-600 to-pink-500', '#e11d48')" class="h-8 rounded-lg bg-gradient-to-tr from-rose-600 to-pink-500 border border-white/20"></button>
-                        <button onclick="setIconGradient('from-slate-800 to-slate-950', '#0f172a')" class="h-8 rounded-lg bg-gradient-to-tr from-slate-800 to-slate-950 border border-white/20"></button>
-                    </div>
-                </div>
+  <!-- Slide-out Hamburger Menu Drawer -->
+  <aside id="drawer-menu" class="fixed top-0 right-0 z-50 h-full w-80 max-w-[85vw] bg-[var(--bg-card)] border-l border-[var(--border-color)] transform translate-x-full transition-transform duration-300 ease-out flex flex-col shadow-2xl">
+    
+    <!-- Drawer Header -->
+    <div class="p-4 border-b border-[var(--border-color)] flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-compass text-brand"></i>
+        <span class="font-bold text-lg text-[var(--text-primary)]">Navigation & Settings</span>
+      </div>
+      <button onclick="toggleMenu(false)" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
 
-                <div>
-                    <label class="block font-semibold text-slate-300 mb-1.5">Symbol or Emoji</label>
-                    <div class="grid grid-cols-6 gap-2 text-center text-sm">
-                        <button onclick="setIconSymbol('fa-solid fa-bolt')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg"><i class="fa-solid fa-bolt"></i></button>
-                        <button onclick="setIconSymbol('fa-solid fa-fire')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg"><i class="fa-solid fa-fire text-amber-400"></i></button>
-                        <button onclick="setIconSymbol('fa-solid fa-dumbbell')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg"><i class="fa-solid fa-dumbbell text-indigo-400"></i></button>
-                        <button onclick="setIconSymbol('fa-solid fa-apple-whole')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg"><i class="fa-solid fa-apple-whole text-rose-400"></i></button>
-                        <button onclick="setIconSymbol('fa-solid fa-utensils')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg"><i class="fa-solid fa-utensils text-emerald-400"></i></button>
-                        <button onclick="setIconSymbol('fa-solid fa-heart-pulse')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg"><i class="fa-solid fa-heart-pulse text-pink-400"></i></button>
-                    </div>
-                </div>
-            </div>
+    <!-- Drawer Content (Scrollable) -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-6">
+      
+      <!-- Primary Navigation Action Items -->
+      <nav class="space-y-2">
+        <p class="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] px-2 mb-1">Views</p>
+        
+        <button onclick="switchTab('dashboard')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors font-medium text-brand bg-brand/10">
+          <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+          <span>Dashboard</span>
+        </button>
+        
+        <button onclick="switchTab('log')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors font-medium text-[var(--text-primary)] hover:bg-[var(--bg-input)]">
+          <i class="fa-solid fa-utensils w-5 text-center text-brand"></i>
+          <span>Meal Log</span>
+        </button>
 
-            <div class="flex gap-2 pt-2">
-                <button onclick="applyCustomIcon()" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-lg shadow-brand-500/20">Apply Custom Icon</button>
-            </div>
+        <button onclick="switchTab('recipes')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors font-medium text-[var(--text-primary)] hover:bg-[var(--bg-input)]">
+          <i class="fa-solid fa-book-bookmark w-5 text-center text-brand"></i>
+          <span>Recipes & Foods</span>
+        </button>
+      </nav>
+
+      <hr class="border-[var(--border-color)]">
+
+      <!-- Appearance Settings -->
+      <div class="space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] px-2">Color Theme</p>
+        <div class="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)]">
+          <button onclick="setTheme('dark')" id="theme-btn-dark" class="py-2 text-xs font-medium rounded-lg transition-all text-center flex flex-col items-center gap-1">
+            <i class="fa-solid fa-moon"></i>
+            <span>Dark</span>
+          </button>
+          <button onclick="setTheme('light')" id="theme-btn-light" class="py-2 text-xs font-medium rounded-lg transition-all text-center flex flex-col items-center gap-1">
+            <i class="fa-solid fa-sun"></i>
+            <span>Light</span>
+          </button>
+          <button onclick="setTheme('system')" id="theme-btn-system" class="py-2 text-xs font-medium rounded-lg transition-all text-center flex flex-col items-center gap-1">
+            <i class="fa-solid fa-desktop"></i>
+            <span>System</span>
+          </button>
         </div>
-    </div>
+      </div>
 
-    <!-- MODAL 3: Add Recipe Modal -->
-    <div id="addRecipeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-utensils text-brand-400"></i> Add New Recipe
-                </h3>
-                <button onclick="closeAddRecipeModal()" class="text-slate-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+      <!-- App Icon Selector -->
+      <div class="space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] px-2">App Icon</p>
+        <div class="grid grid-cols-3 gap-2">
+          <!-- Icon 1 -->
+          <button onclick="setAppIcon('1')" id="icon-option-1" class="p-2 rounded-xl border-2 border-brand bg-[var(--bg-input)] flex flex-col items-center gap-1.5 transition-all text-center">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand to-purple-600 flex items-center justify-center text-white font-black text-lg shadow-sm">
+              M
             </div>
-
-            <div class="space-y-3 text-xs">
-                <div>
-                    <label class="block text-slate-400 mb-1">Recipe Name</label>
-                    <input type="text" id="recipeNameInput" placeholder="e.g. Grilled Chicken & Rice Bowl" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-brand-500">
-                </div>
-                <div>
-                    <label class="block text-slate-400 mb-1">Serving Size / Label</label>
-                    <input type="text" id="recipeServingInput" placeholder="e.g. 1 bowl (350g)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-brand-500">
-                </div>
-                <div class="grid grid-cols-3 gap-2">
-                    <div>
-                        <label class="block text-protein mb-1">Protein (g)</label>
-                        <input type="number" id="recipeProteinInput" value="35" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono">
-                    </div>
-                    <div>
-                        <label class="block text-carbs mb-1">Carbs (g)</label>
-                        <input type="number" id="recipeCarbInput" value="45" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono">
-                    </div>
-                    <div>
-                        <label class="block text-fats mb-1">Fat (g)</label>
-                        <input type="number" id="recipeFatInput" value="8" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono">
-                    </div>
-                </div>
+            <span class="text-[11px] font-medium text-[var(--text-primary)]">Classic</span>
+          </button>
+          <!-- Icon 2 -->
+          <button onclick="setAppIcon('2')" id="icon-option-2" class="p-2 rounded-xl border-2 border-transparent bg-[var(--bg-input)] flex flex-col items-center gap-1.5 transition-all text-center hover:border-[var(--border-color)]">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white font-black text-lg shadow-sm">
+              <i class="fa-solid fa-carrot text-sm"></i>
             </div>
-
-            <button onclick="saveNewRecipe()" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-lg shadow-brand-500/20">Save Recipe to Library</button>
+            <span class="text-[11px] font-medium text-[var(--text-primary)]">Carrot</span>
+          </button>
+          <!-- Icon 3 -->
+          <button onclick="setAppIcon('3')" id="icon-option-3" class="p-2 rounded-xl border-2 border-transparent bg-[var(--bg-input)] flex flex-col items-center gap-1.5 transition-all text-center hover:border-[var(--border-color)]">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-black text-lg shadow-sm">
+              <i class="fa-solid fa-fire text-sm"></i>
+            </div>
+            <span class="text-[11px] font-medium text-[var(--text-primary)]">Pulse</span>
+          </button>
         </div>
+      </div>
+
+      <hr class="border-[var(--border-color)]">
+
+      <!-- Quick Actions / Utilities -->
+      <div class="space-y-2">
+        <p class="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] px-2 mb-1">Quick Tools</p>
+        <button onclick="resetDailyLog()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-red-500 hover:bg-red-500/10 transition-colors font-medium text-sm">
+          <i class="fa-solid fa-rotate-right w-5 text-center"></i>
+          <span>Reset Today's Log</span>
+        </button>
+      </div>
+
     </div>
 
-    <!-- Toast Notification Container -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 border border-brand-500/40 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none z-50">
-        <i class="fa-solid fa-circle-check text-brand-400 text-lg"></i>
-        <span id="toastMsg" class="text-xs font-medium">Plan summary copied to clipboard!</span>
+    <!-- Drawer Footer -->
+    <div class="p-4 border-t border-[var(--border-color)] text-center text-xs text-[var(--text-secondary)]">
+      Mise v2.4 • Personal Macro Studio
     </div>
+  </aside>
 
-    <script>
-        // State Management
-        let state = {
-            units: 'imperial',
-            gender: 'male',
-            age: 28,
-            weight: 175,
-            heightFt: 5,
-            heightIn: 10,
-            heightCm: 178,
-            activity: 1.375,
-            goal: 'cut_moderate',
-            manualCaloriesOverride: false,
-            manualCalories: 2200,
-            macroMode: 'percentage',
-            proteinPct: 30,
-            carbPct: 40,
-            fatPct: 30,
-            proteinGPerWeight: 1.0,
-            fatGPerWeight: 0.35,
-            mealsCount: 4,
-            useCustomWebhook: false,
-            customStorageUrl: '',
-            customStorageToken: '',
-            linkedFileName: ''
-        };
+  <!-- Main View Container -->
+  <main class="flex-1 w-full max-w-lg mx-auto px-4 py-5 space-y-6">
 
-        let calculated = {
-            bmr: 0,
-            tdee: 0,
-            targetCalories: 2200,
-            proteinGrams: 0,
-            carbGrams: 0,
-            fatGrams: 0,
-            proteinKcal: 0,
-            carbKcal: 0,
-            fatKcal: 0
-        };
+    <!-- TAB 1: DASHBOARD -->
+    <section id="tab-dashboard" class="space-y-5">
+      <!-- Date Header Bar -->
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-xs uppercase font-bold text-brand tracking-wider">Today's Summary</span>
+          <h2 class="text-2xl font-bold text-[var(--text-primary)]" id="current-date-display">Today</h2>
+        </div>
+        <button onclick="openAddMealModal()" class="px-3.5 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white text-sm font-semibold shadow-md shadow-brand/20 flex items-center gap-2 transition-transform active:scale-95">
+          <i class="fa-solid fa-plus"></i>
+          <span>Log Meal</span>
+        </button>
+      </div>
 
-        let db = null;
-        let auth = null;
-        let currentUser = null;
-        let macroChartInstance = null;
-        let fileHandle = null;
+      <!-- Calorie Hero Card -->
+      <div class="glass-card p-5 rounded-2xl relative overflow-hidden">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <span class="text-xs text-[var(--text-secondary)] font-medium">Calories Consumed</span>
+            <div class="flex items-baseline gap-1 mt-0.5">
+              <span id="calories-current" class="text-3xl font-extrabold text-[var(--text-primary)]">0</span>
+              <span class="text-sm text-[var(--text-secondary)]">/ <span id="calories-target">2,200</span> kcal</span>
+            </div>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-brand/10 text-brand flex items-center justify-center font-bold text-xl">
+            <i class="fa-solid fa-fire"></i>
+          </div>
+        </div>
 
-        let savedRecipes = [
-            { id: '1', name: 'Chicken Breast & Brown Rice', serving: '200g serving', protein: 42, carbs: 45, fat: 5 },
-            { id: '2', name: 'Egg White Oatmeal Shake', serving: '1 smoothie', protein: 30, carbs: 50, fat: 6 },
-            { id: '3', name: 'Salmon & Asparagus', serving: '1 filet + greens', protein: 34, carbs: 8, fat: 18 }
-        ];
+        <!-- Calorie Progress Bar -->
+        <div class="w-full bg-[var(--bg-input)] h-3 rounded-full overflow-hidden p-0.5 border border-[var(--border-color)]">
+          <div id="calorie-progress-bar" class="bg-gradient-to-r from-brand to-purple-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-[11px] text-[var(--text-secondary)] mt-2 font-medium">
+          <span id="calorie-remaining">2,200 kcal remaining</span>
+          <span id="calorie-percent">0%</span>
+        </div>
+      </div>
 
-        let selectedIconConfig = {
-            gradientClass: 'from-brand-600 to-indigo-400',
-            bgHex: '#4f46e5',
-            symbolClass: 'fa-solid fa-bolt'
-        };
+      <!-- Macro Rings / Breakdown Grid -->
+      <div class="grid grid-cols-3 gap-3">
+        <!-- Protein -->
+        <div class="glass-card p-3.5 rounded-2xl text-center space-y-1.5">
+          <div class="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+            <span class="font-medium">Protein</span>
+            <i class="fa-solid fa-drumstick-bite text-amber-500"></i>
+          </div>
+          <div class="text-lg font-bold text-[var(--text-primary)]">
+            <span id="protein-current">0</span><span class="text-xs text-[var(--text-secondary)]">g</span>
+          </div>
+          <div class="w-full bg-[var(--bg-input)] h-1.5 rounded-full overflow-hidden">
+            <div id="protein-bar" class="bg-amber-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="text-[10px] text-[var(--text-secondary)] font-medium">Target: <span id="protein-target">160</span>g</div>
+        </div>
 
-        window.onload = function() {
-            loadSavedState();
-            initFirebase();
-            initChart();
-            updateCalculations();
-            calculatePortionImpact();
-            renderRecipes();
-            updateStorageUI();
-        };
+        <!-- Carbs -->
+        <div class="glass-card p-3.5 rounded-2xl text-center space-y-1.5">
+          <div class="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+            <span class="font-medium">Carbs</span>
+            <i class="fa-solid fa-wheat-awn text-emerald-500"></i>
+          </div>
+          <div class="text-lg font-bold text-[var(--text-primary)]">
+            <span id="carbs-current">0</span><span class="text-xs text-[var(--text-secondary)]">g</span>
+          </div>
+          <div class="w-full bg-[var(--bg-input)] h-1.5 rounded-full overflow-hidden">
+            <div id="carbs-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="text-[10px] text-[var(--text-secondary)] font-medium">Target: <span id="carbs-target">220</span>g</div>
+        </div>
 
-        /* ==========================================================================
-           CUSTOM STORAGE LOCATION & FILE HANDLER LOGIC
-           ========================================================================== */
-        function openStorageModal() {
-            document.getElementById('storageModal').classList.remove('hidden');
-            document.getElementById('storageModal').classList.add('flex');
-            document.getElementById('customWebhookToggle').checked = state.useCustomWebhook;
-            document.getElementById('customStorageUrlInput').value = state.customStorageUrl || '';
-            document.getElementById('customStorageTokenInput').value = state.customStorageToken || '';
-            toggleCustomWebhook();
+        <!-- Fats -->
+        <div class="glass-card p-3.5 rounded-2xl text-center space-y-1.5">
+          <div class="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+            <span class="font-medium">Fats</span>
+            <i class="fa-solid fa-droplet text-cyan-500"></i>
+          </div>
+          <div class="text-lg font-bold text-[var(--text-primary)]">
+            <span id="fats-current">0</span><span class="text-xs text-[var(--text-secondary)]">g</span>
+          </div>
+          <div class="w-full bg-[var(--bg-input)] h-1.5 rounded-full overflow-hidden">
+            <div id="fats-bar" class="bg-cyan-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="text-[10px] text-[var(--text-secondary)] font-medium">Target: <span id="fats-target">65</span>g</div>
+        </div>
+      </div>
+
+      <!-- Water Intake Widget -->
+      <div class="glass-card p-4 rounded-2xl flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-glass-water text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-[var(--text-primary)]">Water Intake</h3>
+            <span class="text-xs text-[var(--text-secondary)]"><span id="water-current">0</span> / 8 Glasses</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="addWater(-1)" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center text-[var(--text-primary)] active:scale-95">
+            <i class="fa-solid fa-minus text-xs"></i>
+          </button>
+          <button onclick="addWater(1)" class="w-8 h-8 rounded-lg bg-blue-500 text-white flex items-center justify-center shadow-sm active:scale-95">
+            <i class="fa-solid fa-plus text-xs"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Meals Section Preview -->
+      <div class="space-y-3">
+        <div class="flex justify-between items-center px-1">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--text-secondary)]">Today's Meals</h3>
+          <button onclick="switchTab('log')" class="text-xs text-brand font-semibold hover:underline">View All</button>
+        </div>
+        <div id="dashboard-meal-list" class="space-y-2">
+          <!-- Dynamically populated meal items -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: MEAL LOG -->
+    <section id="tab-log" class="space-y-5 hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-xs uppercase font-bold text-brand tracking-wider">Tracker</span>
+          <h2 class="text-2xl font-bold text-[var(--text-primary)]">Meal Log</h2>
+        </div>
+        <button onclick="openAddMealModal()" class="px-3.5 py-2 rounded-xl bg-brand text-white text-sm font-semibold shadow-md shadow-brand/20 flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i>
+          <span>Add Entry</span>
+        </button>
+      </div>
+
+      <div id="full-meal-list" class="space-y-3">
+        <!-- Rendered Meal Entries -->
+      </div>
+    </section>
+
+    <!-- TAB 3: RECIPES & FOODS -->
+    <section id="tab-recipes" class="space-y-5 hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-xs uppercase font-bold text-brand tracking-wider">Library</span>
+          <h2 class="text-2xl font-bold text-[var(--text-primary)]">Quick Recipes</h2>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3">
+        <div class="glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:border-brand/50 transition-all" onclick="quickAddPreset('Grilled Chicken Salad', 450, 42, 18, 14)">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-bowl-food text-lg"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-sm text-[var(--text-primary)]">Grilled Chicken Salad</h4>
+              <p class="text-xs text-[var(--text-secondary)]">450 kcal • 42g P • 18g C • 14g F</p>
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-brand px-2.5 py-1 rounded-lg bg-brand/10">+ Quick Add</span>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:border-brand/50 transition-all" onclick="quickAddPreset('Oatmeal & Protein Shake', 520, 38, 62, 9)">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-blender text-lg"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-sm text-[var(--text-primary)]">Oatmeal & Protein Shake</h4>
+              <p class="text-xs text-[var(--text-secondary)]">520 kcal • 38g P • 62g C • 9g F</p>
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-brand px-2.5 py-1 rounded-lg bg-brand/10">+ Quick Add</span>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:border-brand/50 transition-all" onclick="quickAddPreset('Salmon & Quinoa Bowl', 610, 36, 48, 22)">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-500 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-fish text-lg"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-sm text-[var(--text-primary)]">Salmon & Quinoa Bowl</h4>
+              <p class="text-xs text-[var(--text-secondary)]">610 kcal • 36g P • 48g C • 22g F</p>
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-brand px-2.5 py-1 rounded-lg bg-brand/10">+ Quick Add</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation Bar (Touch-friendly iPhone layout) -->
+  <footer class="sticky bottom-0 z-20 w-full bg-[var(--bg-nav)] border-t border-[var(--border-color)] px-6 py-2">
+    <div class="max-w-md mx-auto flex justify-around items-center">
+      <button onclick="switchTab('dashboard')" id="bottom-nav-dashboard" class="flex flex-col items-center gap-1 text-brand py-1">
+        <i class="fa-solid fa-chart-pie text-lg"></i>
+        <span class="text-[10px] font-bold">Dashboard</span>
+      </button>
+      <button onclick="switchTab('log')" id="bottom-nav-log" class="flex flex-col items-center gap-1 text-[var(--text-secondary)] py-1 hover:text-[var(--text-primary)]">
+        <i class="fa-solid fa-utensils text-lg"></i>
+        <span class="text-[10px] font-bold">Meal Log</span>
+      </button>
+      <button onclick="switchTab('recipes')" id="bottom-nav-recipes" class="flex flex-col items-center gap-1 text-[var(--text-secondary)] py-1 hover:text-[var(--text-primary)]">
+        <i class="fa-solid fa-book-bookmark text-lg"></i>
+        <span class="text-[10px] font-bold">Recipes</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- Add Meal Modal -->
+  <div id="add-meal-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+    <div class="w-full sm:max-w-md bg-[var(--bg-card)] border-t sm:border border-[var(--border-color)] rounded-t-2xl sm:rounded-2xl p-5 space-y-4 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300">
+      
+      <div class="flex justify-between items-center border-b border-[var(--border-color)] pb-3">
+        <h3 class="font-bold text-lg text-[var(--text-primary)]">Log Meal Entry</h3>
+        <button onclick="closeAddMealModal()" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center text-[var(--text-secondary)]">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="add-meal-form" onsubmit="handleMealSubmit(event)" class="space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-[var(--text-secondary)] uppercase">Meal Name</label>
+          <input type="text" id="meal-name" required placeholder="e.g. Avocado Toast & Eggs" class="w-full mt-1 p-2.5 rounded-xl app-input text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-[var(--text-secondary)] uppercase">Calories (kcal)</label>
+            <input type="number" id="meal-calories" required min="0" placeholder="350" class="w-full mt-1 p-2.5 rounded-xl app-input text-sm">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-[var(--text-secondary)] uppercase">Protein (g)</label>
+            <input type="number" id="meal-protein" required min="0" placeholder="25" class="w-full mt-1 p-2.5 rounded-xl app-input text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-[var(--text-secondary)] uppercase">Carbs (g)</label>
+            <input type="number" id="meal-carbs" required min="0" placeholder="30" class="w-full mt-1 p-2.5 rounded-xl app-input text-sm">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-[var(--text-secondary)] uppercase">Fats (g)</label>
+            <input type="number" id="meal-fats" required min="0" placeholder="12" class="w-full mt-1 p-2.5 rounded-xl app-input text-sm">
+          </div>
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="closeAddMealModal()" class="w-1/2 py-2.5 rounded-xl glass-card font-semibold text-sm text-[var(--text-primary)]">Cancel</button>
+          <button type="submit" class="w-1/2 py-2.5 rounded-xl bg-brand text-white font-semibold text-sm shadow-md shadow-brand/20">Save Meal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Global Application State
+    const targets = { calories: 2200, protein: 160, carbs: 220, fats: 65 };
+    let meals = JSON.parse(localStorage.getItem('mise_meals')) || [
+      { id: 1, name: 'Greek Yogurt & Honey', calories: 240, protein: 22, carbs: 28, fats: 4 }
+    ];
+    let waterGlasses = parseInt(localStorage.getItem('mise_water')) || 0;
+
+    // Date Setup
+    document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric'
+    });
+
+    // Initialize Application
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      initAppIcon();
+      renderApp();
+    });
+
+    // Hamburger Menu Handlers
+    function toggleMenu(forceState) {
+      const drawer = document.getElementById('drawer-menu');
+      const backdrop = document.getElementById('drawer-backdrop');
+      const isOpen = drawer.classList.contains('translate-x-0');
+      
+      const shouldOpen = forceState !== undefined ? forceState : !isOpen;
+
+      if (shouldOpen) {
+        drawer.classList.remove('translate-x-full');
+        drawer.classList.add('translate-x-0');
+        backdrop.classList.remove('opacity-0', 'pointer-events-none');
+        backdrop.classList.add('opacity-100');
+      } else {
+        drawer.classList.remove('translate-x-0');
+        drawer.classList.add('translate-x-full');
+        backdrop.classList.remove('opacity-100');
+        backdrop.classList.add('opacity-0', 'pointer-events-none');
+      }
+    }
+
+    // Tab Navigation Switcher
+    function switchTab(tabId) {
+      ['dashboard', 'log', 'recipes'].forEach(tab => {
+        document.getElementById(`tab-${tab}`).classList.add('hidden');
+        const bNav = document.getElementById(`bottom-nav-${tab}`);
+        if (bNav) {
+          bNav.classList.remove('text-brand');
+          bNav.classList.add('text-[var(--text-secondary)]');
         }
+      });
 
-        function closeStorageModal() {
-            document.getElementById('storageModal').classList.add('hidden');
-            document.getElementById('storageModal').classList.remove('flex');
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      const activeNav = document.getElementById(`bottom-nav-${tabId}`);
+      if (activeNav) {
+        activeNav.classList.add('text-brand');
+        activeNav.classList.remove('text-[var(--text-secondary)]');
+      }
+
+      toggleMenu(false);
+    }
+
+    // Theme Switcher System
+    function initTheme() {
+      const savedTheme = localStorage.getItem('mise_theme') || 'dark';
+      setTheme(savedTheme, false);
+
+      // Listen to OS color scheme changes if system is selected
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (localStorage.getItem('mise_theme') === 'system') {
+          setTheme('system', false);
         }
+      });
+    }
 
-        function toggleCustomWebhook() {
-            const isChecked = document.getElementById('customWebhookToggle').checked;
-            const container = document.getElementById('webhookInputsContainer');
-            if (isChecked) {
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-            }
+    function setTheme(mode, save = true) {
+      document.documentElement.setAttribute('data-theme', mode);
+      if (save) localStorage.setItem('mise_theme', mode);
+
+      // Update button toggle active styling
+      ['dark', 'light', 'system'].forEach(m => {
+        const btn = document.getElementById(`theme-btn-${m}`);
+        if (btn) {
+          if (m === mode) {
+            btn.className = "py-2 text-xs font-medium rounded-lg transition-all text-center flex flex-col items-center gap-1 bg-brand text-white shadow-sm";
+          } else {
+            btn.className = "py-2 text-xs font-medium rounded-lg transition-all text-center flex flex-col items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]";
+          }
         }
+      });
+    }
 
-        async function pickLinkedFile() {
-            if ('showSaveFilePicker' in window) {
-                try {
-                    const options = {
-                        suggestedName: state.linkedFileName || 'macropulse_data.json',
-                        types: [{
-                            description: 'JSON Macro Data File',
-                            accept: { 'application/json': ['.json'] }
-                        }]
-                    };
-                    fileHandle = await window.showSaveFilePicker(options);
-                    state.linkedFileName = fileHandle.name;
-                    saveState();
-                    await writeToLinkedFile();
-                    updateStorageUI();
-                    showToast(`Linked to file: ${fileHandle.name}`);
-                } catch (err) {
-                    if (err.name !== 'AbortError') {
-                        console.error("File selection error:", err);
-                    }
-                }
-            } else {
-                alert("Direct file-linking API is not supported in this browser version. Use Option 3 to import/export JSON files manually or set a Custom Webhook endpoint.");
-            }
+    // App Icon Switcher System
+    function initAppIcon() {
+      const savedIcon = localStorage.getItem('mise_app_icon') || '1';
+      setAppIcon(savedIcon, false);
+    }
+
+    function setAppIcon(iconId, save = true) {
+      const iconLink = document.getElementById('apple-touch-icon');
+      if (iconLink) {
+        iconLink.href = `apple-touch-icon-${iconId}.png`;
+      }
+
+      if (save) localStorage.setItem('mise_app_icon', iconId);
+
+      // Update selection highlights in drawer
+      [1, 2, 3].forEach(id => {
+        const btn = document.getElementById(`icon-option-${id}`);
+        if (btn) {
+          if (id.toString() === iconId.toString()) {
+            btn.classList.add('border-brand');
+            btn.classList.remove('border-transparent');
+          } else {
+            btn.classList.remove('border-brand');
+            btn.classList.add('border-transparent');
+          }
         }
-
-        async function writeToLinkedFile() {
-            if (!fileHandle) return;
-            try {
-                const writable = await fileHandle.createWritable();
-                const payload = {
-                    app: "MacroPulse Pro",
-                    version: "2.0",
-                    updatedAt: new Date().toISOString(),
-                    userSettings: state,
-                    savedRecipes: savedRecipes
-                };
-                await writable.write(JSON.stringify(payload, null, 2));
-                await writable.close();
-            } catch (err) {
-                console.warn("Could not write directly to file handle:", err);
-            }
-        }
-
-        function unlinkStorageFile() {
-            fileHandle = null;
-            state.linkedFileName = '';
-            saveState();
-            updateStorageUI();
-            showToast("Unlinked custom file location.");
-        }
-
-        function saveStorageSettings() {
-            state.useCustomWebhook = document.getElementById('customWebhookToggle').checked;
-            state.customStorageUrl = document.getElementById('customStorageUrlInput').value.trim();
-            state.customStorageToken = document.getElementById('customStorageTokenInput').value.trim();
-
-            saveState();
-            updateStorageUI();
-            closeStorageModal();
-            showToast("Storage settings updated.");
-
-            if (state.useCustomWebhook && state.customStorageUrl) {
-                syncToCustomWebhook();
-            }
-        }
-
-        async function syncToCustomWebhook() {
-            if (!state.useCustomWebhook || !state.customStorageUrl) return;
-            try {
-                const headers = { 'Content-Type': 'application/json' };
-                if (state.customStorageToken) {
-                    headers['Authorization'] = `Bearer ${state.customStorageToken}`;
-                }
-                const payload = {
-                    app: "MacroPulse Pro",
-                    timestamp: new Date().toISOString(),
-                    userSettings: state,
-                    savedRecipes: savedRecipes
-                };
-                await fetch(state.customStorageUrl, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(payload)
-                });
-                console.log("Custom Webhook sync completed.");
-            } catch (err) {
-                console.warn("Failed to sync to custom webhook URL:", err);
-            }
-        }
-
-        function updateStorageUI() {
-            const label = document.getElementById('headerStorageLabel');
-            const badge = document.getElementById('linkedFileBadge');
-            const unlinkBtn = document.getElementById('unlinkBtn');
-
-            if (state.linkedFileName) {
-                label.textContent = state.linkedFileName;
-                badge.textContent = `Linked: ${state.linkedFileName}`;
-                badge.className = "text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono border border-emerald-500/30";
-                unlinkBtn.classList.remove('hidden');
-            } else if (state.useCustomWebhook && state.customStorageUrl) {
-                label.textContent = "Custom Webhook";
-                badge.textContent = "Remote Endpoint Active";
-                badge.className = "text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono border border-amber-500/30";
-                unlinkBtn.classList.add('hidden');
-            } else {
-                label.textContent = "Storage";
-                badge.textContent = "Not Linked";
-                badge.className = "text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono";
-                unlinkBtn.classList.add('hidden');
-            }
-        }
-
-        function importDataFromFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (data.userSettings) {
-                        Object.assign(state, data.userSettings);
-                        syncUIFromState();
-                    }
-                    if (data.savedRecipes && Array.isArray(data.savedRecipes)) {
-                        savedRecipes = data.savedRecipes;
-                        renderRecipes();
-                    }
-                    updateCalculations();
-                    showToast("Backup data imported successfully!");
-                    closeStorageModal();
-                } catch (err) {
-                    alert("Invalid JSON data file structure.");
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        /* ==========================================================================
-           FIREBASE INITIALIZATION
-           ========================================================================== */
-        async function initFirebase() {
-            if (!window.fbSDK) return;
-            try {
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'macropulse-pro';
-                const firebaseConfig = typeof __firebase_config !== 'undefined' 
-                    ? JSON.parse(__firebase_config) 
-                    : {
-                        apiKey: "AIzaSyDemoKeyForMacroPulseApp12345",
-                        authDomain: "macropulse-demo.firebaseapp.com",
-                        projectId: "macropulse-demo",
-                        storageBucket: "macropulse-demo.appspot.com",
-                        messagingSenderId: "1234567890",
-                        appId: "1:1234567890:web:abcdef123456"
-                      };
-
-                const app = window.fbSDK.initializeApp(firebaseConfig);
-                auth = window.fbSDK.getAuth(app);
-                db = window.fbSDK.getFirestore(app);
-
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await window.fbSDK.signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await window.fbSDK.signInAnonymously(auth);
-                }
-
-                window.fbSDK.onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        currentUser = user;
-                        listenToCloudRecipes(appId, user.uid);
-                    }
-                });
-            } catch (e) {
-                console.log("Firebase initialized in local-first mode.");
-            }
-        }
-
-        function saveState() {
-            try {
-                localStorage.setItem('macropulse_state', JSON.stringify(state));
-            } catch (e) {
-                console.warn('Failed to save state to LocalStorage');
-            }
-
-            if (fileHandle) writeToLinkedFile();
-            if (state.useCustomWebhook) syncToCustomWebhook();
-        }
-
-        function loadSavedState() {
-            try {
-                const saved = localStorage.getItem('macropulse_state');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    Object.assign(state, parsed);
-                    syncUIFromState();
-                }
-            } catch (e) {
-                console.warn('Failed to parse saved state');
-            }
-        }
-
-        function syncUIFromState() {
-            document.getElementById('inputAge').value = state.age;
-            document.getElementById('inputWeight').value = state.weight;
-            document.getElementById('inputHeightFt').value = state.heightFt;
-            document.getElementById('inputHeightIn').value = state.heightIn;
-            document.getElementById('inputHeightCm').value = state.heightCm;
-            document.getElementById('selectActivity').value = state.activity;
-            document.getElementById('overrideCaloriesToggle').checked = state.manualCaloriesOverride;
-            document.getElementById('inputTargetCalories').value = state.manualCalories;
-            document.getElementById('selectMealCount').value = state.mealsCount;
-
-            document.getElementById('sliderProtein').value = state.proteinPct;
-            document.getElementById('sliderCarbs').value = state.carbPct;
-            document.getElementById('sliderFat').value = state.fatPct;
-
-            document.getElementById('inputProteinGPerWeight').value = state.proteinGPerWeight;
-            document.getElementById('inputFatGPerWeight').value = state.fatGPerWeight;
-
-            setUnits(state.units, false);
-            setGender(state.gender, false);
-            setGoal(state.goal, false);
-            setMacroMode(state.macroMode, false);
-            toggleCalorieOverride(false);
-        }
-
-        /* ==========================================================================
-           UI HANDLERS & SWITCHERS
-           ========================================================================== */
-        function setUnits(unit, triggerUpdate = true) {
-            state.units = unit;
-            const imperialBtn = document.getElementById('unitImperialBtn');
-            const metricBtn = document.getElementById('unitMetricBtn');
-            const impWrapper = document.getElementById('heightImperialWrapper');
-            const metWrapper = document.getElementById('heightMetricWrapper');
-            const weightLabels = document.querySelectorAll('.unit-weight-label');
-
-            if (unit === 'imperial') {
-                imperialBtn.className = "px-2.5 sm:px-3 py-1.5 rounded-md transition-all bg-brand-600 text-white shadow";
-                metricBtn.className = "px-2.5 sm:px-3 py-1.5 rounded-md transition-all text-slate-400 hover:text-white";
-                impWrapper.classList.remove('hidden');
-                metWrapper.classList.add('hidden');
-                weightLabels.forEach(el => el.textContent = 'lbs');
-            } else {
-                metricBtn.className = "px-2.5 sm:px-3 py-1.5 rounded-md transition-all bg-brand-600 text-white shadow";
-                imperialBtn.className = "px-2.5 sm:px-3 py-1.5 rounded-md transition-all text-slate-400 hover:text-white";
-                metWrapper.classList.remove('hidden');
-                impWrapper.classList.add('hidden');
-                weightLabels.forEach(el => el.textContent = 'kg');
-            }
-
-            if (triggerUpdate) updateCalculations();
-        }
-
-        function setGender(g, triggerUpdate = true) {
-            state.gender = g;
-            const maleBtn = document.getElementById('genderMaleBtn');
-            const femaleBtn = document.getElementById('genderFemaleBtn');
-
-            if (g === 'male') {
-                maleBtn.className = "py-2 px-3 text-xs font-semibold rounded-lg border border-brand-500 bg-brand-500/10 text-brand-400 flex items-center justify-center gap-2 transition";
-                femaleBtn.className = "py-2 px-3 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600 flex items-center justify-center gap-2 transition";
-            } else {
-                femaleBtn.className = "py-2 px-3 text-xs font-semibold rounded-lg border border-brand-500 bg-brand-500/10 text-brand-400 flex items-center justify-center gap-2 transition";
-                maleBtn.className = "py-2 px-3 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600 flex items-center justify-center gap-2 transition";
-            }
-
-            if (triggerUpdate) updateCalculations();
-        }
-
-        function setGoal(goalKey, triggerUpdate = true) {
-            state.goal = goalKey;
-            const buttons = {
-                'cut_aggressive': document.getElementById('goalCutAggressive'),
-                'cut_moderate': document.getElementById('goalCutModerate'),
-                'maintain': document.getElementById('goalMaintain'),
-                'bulk': document.getElementById('goalBulk')
-            };
-
-            Object.keys(buttons).forEach(key => {
-                if (key === goalKey) {
-                    buttons[key].className = "goal-btn py-2 px-2 text-xs font-medium rounded-lg border border-brand-500 bg-brand-500/10 text-brand-400 transition text-center";
-                } else {
-                    buttons[key].className = "goal-btn py-2 px-2 text-xs font-medium rounded-lg border border-slate-700 bg-slate-800/40 text-slate-300 hover:border-slate-600 transition text-center";
-                }
-            });
-
-            if (triggerUpdate) updateCalculations();
-        }
-
-        function toggleCalorieOverride(triggerUpdate = true) {
-            const isChecked = document.getElementById('overrideCaloriesToggle').checked;
-            state.manualCaloriesOverride = isChecked;
-            const container = document.getElementById('manualCalorieContainer');
-
-            if (isChecked) {
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-            }
-
-            if (triggerUpdate) updateCalculations();
-        }
-
-        function setMacroMode(mode, triggerUpdate = true) {
-            state.macroMode = mode;
-            const pctBtn = document.getElementById('macroModePctBtn');
-            const gBtn = document.getElementById('macroModeGramsBtn');
-            const pctSection = document.getElementById('macroPercentageSection');
-            const gSection = document.getElementById('macroBodyweightSection');
-
-            if (mode === 'percentage') {
-                pctBtn.className = "px-2 py-0.5 rounded bg-brand-600 text-white font-medium";
-                gBtn.className = "px-2 py-0.5 rounded text-slate-400 font-medium hover:text-white";
-                pctSection.classList.remove('hidden');
-                gSection.classList.add('hidden');
-            } else {
-                gBtn.className = "px-2 py-0.5 rounded bg-brand-600 text-white font-medium";
-                pctBtn.className = "px-2 py-0.5 rounded text-slate-400 font-medium hover:text-white";
-                gSection.classList.remove('hidden');
-                pctSection.classList.add('hidden');
-            }
-
-            if (triggerUpdate) updateCalculations();
-        }
-
-        /* ==========================================================================
-           RATIO SLIDER LOGIC
-           ========================================================================== */
-        function onRatioSliderChange(changedMacro) {
-            let p = parseInt(document.getElementById('sliderProtein').value);
-            let c = parseInt(document.getElementById('sliderCarbs').value);
-            let f = parseInt(document.getElementById('sliderFat').value);
-
-            let currentSum = p + c + f;
-            let diff = 100 - currentSum;
-
-            if (changedMacro === 'protein') {
-                c += Math.round(diff * 0.6);
-                f = 100 - p - c;
-            } else if (changedMacro === 'carbs') {
-                p += Math.round(diff * 0.5);
-                f = 100 - p - c;
-            } else if (changedMacro === 'fat') {
-                p += Math.round(diff * 0.5);
-                c = 100 - p - f;
-            }
-
-            p = Math.max(10, Math.min(70, p));
-            c = Math.max(5, Math.min(80, c));
-            f = Math.max(10, Math.min(70, f));
-
-            state.proteinPct = p;
-            state.carbPct = c;
-            state.fatPct = f;
-
-            document.getElementById('sliderProtein').value = p;
-            document.getElementById('sliderCarbs').value = c;
-            document.getElementById('sliderFat').value = f;
-
-            updateCalculations();
-        }
-
-        function applyRatioPreset(p, c, f) {
-            setMacroMode('percentage', false);
-            state.proteinPct = p;
-            state.carbPct = c;
-            state.fatPct = f;
-
-            document.getElementById('sliderProtein').value = p;
-            document.getElementById('sliderCarbs').value = c;
-            document.getElementById('sliderFat').value = f;
-
-            updateCalculations();
-        }
-
-        /* ==========================================================================
-           CORE CALCULATION ENGINE
-           ========================================================================== */
-        function updateCalculations() {
-            state.age = parseFloat(document.getElementById('inputAge').value) || 25;
-            state.weight = parseFloat(document.getElementById('inputWeight').value) || 150;
-            state.heightFt = parseFloat(document.getElementById('inputHeightFt').value) || 5;
-            state.heightIn = parseFloat(document.getElementById('inputHeightIn').value) || 10;
-            state.heightCm = parseFloat(document.getElementById('inputHeightCm').value) || 175;
-            state.activity = parseFloat(document.getElementById('selectActivity').value) || 1.375;
-            state.manualCalories = parseFloat(document.getElementById('inputTargetCalories').value) || 2000;
-            state.mealsCount = parseInt(document.getElementById('selectMealCount').value) || 4;
-
-            state.proteinGPerWeight = parseFloat(document.getElementById('inputProteinGPerWeight').value) || 1.0;
-            state.fatGPerWeight = parseFloat(document.getElementById('inputFatGPerWeight').value) || 0.35;
-
-            let weightKg = state.weight;
-            let heightCm = state.heightCm;
-
-            if (state.units === 'imperial') {
-                weightKg = state.weight * 0.45359237;
-                heightCm = (state.heightFt * 12 + state.heightIn) * 2.54;
-            }
-
-            // 1. Calculate BMR (Mifflin-St Jeor Formula)
-            let bmr = 0;
-            if (state.gender === 'male') {
-                bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * state.age) + 5;
-            } else {
-                bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * state.age) - 161;
-            }
-            calculated.bmr = Math.round(bmr);
-
-            // 2. Calculate TDEE
-            let tdee = bmr * state.activity;
-            calculated.tdee = Math.round(tdee);
-
-            // 3. Target Calories
-            if (state.manualCaloriesOverride) {
-                calculated.targetCalories = state.manualCalories;
-            } else {
-                let multiplier = 1.0;
-                if (state.goal === 'cut_aggressive') multiplier = 0.80;
-                else if (state.goal === 'cut_moderate') multiplier = 0.85;
-                else if (state.goal === 'maintain') multiplier = 1.00;
-                else if (state.goal === 'bulk') multiplier = 1.10;
-
-                calculated.targetCalories = Math.round(tdee * multiplier);
-            }
-
-            // 4. Macro Allocation
-            if (state.macroMode === 'percentage') {
-                const pKcal = calculated.targetCalories * (state.proteinPct / 100);
-                const cKcal = calculated.targetCalories * (state.carbPct / 100);
-                const fKcal = calculated.targetCalories * (state.fatPct / 100);
-
-                calculated.proteinGrams = Math.round(pKcal / 4);
-                calculated.carbGrams = Math.round(cKcal / 4);
-                calculated.fatGrams = Math.round(fKcal / 9);
-
-                calculated.proteinKcal = Math.round(calculated.proteinGrams * 4);
-                calculated.carbKcal = Math.round(calculated.carbGrams * 4);
-                calculated.fatKcal = Math.round(calculated.fatGrams * 9);
-            } else {
-                const weightInLbs = state.units === 'imperial' ? state.weight : state.weight * 2.20462;
-                
-                calculated.proteinGrams = Math.round(weightInLbs * state.proteinGPerWeight);
-                calculated.fatGrams = Math.round(weightInLbs * state.fatGPerWeight);
-
-                calculated.proteinKcal = calculated.proteinGrams * 4;
-                calculated.fatKcal = calculated.fatGrams * 9;
-
-                const remainingKcal = Math.max(0, calculated.targetCalories - calculated.proteinKcal - calculated.fatKcal);
-                calculated.carbGrams = Math.round(remainingKcal / 4);
-                calculated.carbKcal = calculated.carbGrams * 4;
-
-                state.proteinPct = Math.round((calculated.proteinKcal / calculated.targetCalories) * 100) || 0;
-                state.carbPct = Math.round((calculated.carbKcal / calculated.targetCalories) * 100) || 0;
-                state.fatPct = Math.round((calculated.fatKcal / calculated.targetCalories) * 100) || 0;
-            }
-
-            renderResults();
-            saveState();
-        }
-
-        /* ==========================================================================
-           UI RENDERER
-           ========================================================================== */
-        function renderResults() {
-            document.getElementById('bmrDisplay').textContent = `BMR: ${calculated.bmr.toLocaleString()} kcal`;
-            document.getElementById('tdeeDisplay').textContent = `TDEE: ${calculated.tdee.toLocaleString()} kcal`;
-            document.getElementById('displayTargetCalories').textContent = calculated.targetCalories.toLocaleString();
-
-            document.getElementById('valProteinPct').textContent = state.proteinPct;
-            document.getElementById('valCarbPct').textContent = state.carbPct;
-            document.getElementById('valFatPct').textContent = state.fatPct;
-
-            document.getElementById('valProteinGramsPct').textContent = calculated.proteinGrams;
-            document.getElementById('valCarbGramsPct').textContent = calculated.carbGrams;
-            document.getElementById('valFatGramsPct').textContent = calculated.fatGrams;
-
-            const totalPct = state.proteinPct + state.carbPct + state.fatPct;
-            const totalBadge = document.getElementById('totalPctBadge');
-            totalBadge.textContent = `${totalPct}%`;
-            if (totalPct === 100) {
-                totalBadge.className = "font-bold text-emerald-400 font-mono";
-            } else {
-                totalBadge.className = "font-bold text-amber-400 font-mono";
-            }
-
-            document.getElementById('cardProteinGrams').textContent = `${calculated.proteinGrams}g`;
-            document.getElementById('cardProteinCalories').textContent = `${calculated.proteinKcal} kcal`;
-
-            document.getElementById('cardCarbGrams').textContent = `${calculated.carbGrams}g`;
-            document.getElementById('cardCarbCalories').textContent = `${calculated.carbKcal} kcal`;
-
-            document.getElementById('cardFatGrams').textContent = `${calculated.fatGrams}g`;
-            document.getElementById('cardFatCalories').textContent = `${calculated.fatKcal} kcal`;
-
-            document.getElementById('ratioDetailString').textContent = `${state.proteinPct}% P / ${state.carbPct}% C / ${state.fatPct}% F`;
-            document.getElementById('barProtein').style.width = `${state.proteinPct}%`;
-            document.getElementById('barCarbs').style.width = `${state.carbPct}%`;
-            document.getElementById('barFats').style.width = `${state.fatPct}%`;
-
-            document.getElementById('donutCenterPct').textContent = `${calculated.targetCalories}`;
-
-            if (macroChartInstance) {
-                macroChartInstance.data.datasets[0].data = [calculated.proteinKcal, calculated.carbKcal, calculated.fatKcal];
-                macroChartInstance.update();
-            }
-
-            renderMealSchedule();
-            calculatePortionImpact();
-        }
-
-        function renderMealSchedule() {
-            const container = document.getElementById('mealBreakdownContainer');
-            container.innerHTML = '';
-
-            const count = state.mealsCount;
-            const pPerMeal = Math.round(calculated.proteinGrams / count);
-            const cPerMeal = Math.round(calculated.carbGrams / count);
-            const fPerMeal = Math.round(calculated.fatGrams / count);
-            const kcalPerMeal = Math.round(calculated.targetCalories / count);
-
-            const mealNames = {
-                3: ['Breakfast', 'Lunch', 'Dinner'],
-                4: ['Breakfast', 'Lunch', 'Afternoon Snack', 'Dinner'],
-                5: ['Breakfast', 'Morning Snack', 'Lunch', 'Afternoon Snack', 'Dinner'],
-                6: ['Meal 1 (Breakfast)', 'Meal 2 (Mid-Morning)', 'Meal 3 (Lunch)', 'Meal 4 (Pre-Workout)', 'Meal 5 (Dinner)', 'Meal 6 (Evening)']
-            };
-
-            const labels = mealNames[count] || Array.from({length: count}, (_, i) => `Meal ${i + 1}`);
-
-            labels.forEach((name) => {
-                const item = document.createElement('div');
-                item.className = "bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-slate-700 transition";
-                item.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-200">${name}</span>
-                        <span class="text-[11px] font-mono text-brand-400 font-semibold">${kcalPerMeal} kcal</span>
-                    </div>
-                    <div class="grid grid-cols-3 gap-1 text-center text-[10px]">
-                        <div class="bg-slate-900 p-1.5 rounded border border-slate-800">
-                            <span class="text-protein font-bold">${pPerMeal}g</span>
-                            <span class="block text-slate-500">Protein</span>
-                        </div>
-                        <div class="bg-slate-900 p-1.5 rounded border border-slate-800">
-                            <span class="text-carbs font-bold">${cPerMeal}g</span>
-                            <span class="block text-slate-500">Carbs</span>
-                        </div>
-                        <div class="bg-slate-900 p-1.5 rounded border border-slate-800">
-                            <span class="text-fats font-bold">${fPerMeal}g</span>
-                            <span class="block text-slate-500">Fat</span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        /* ==========================================================================
-           FOOD PORTION CALCULATOR
-           ========================================================================== */
-        function calculatePortionImpact() {
-            const grams = parseFloat(document.getElementById('portionGrams').value) || 0;
-            const p100 = parseFloat(document.getElementById('portionPPer100').value) || 0;
-            const c100 = parseFloat(document.getElementById('portionCPer100').value) || 0;
-            const f100 = parseFloat(document.getElementById('portionFPer100').value) || 0;
-
-            const factor = grams / 100;
-            const pGrams = (p100 * factor);
-            const cGrams = (c100 * factor);
-            const fGrams = (f100 * factor);
-
-            const totalKcal = Math.round((pGrams * 4) + (cGrams * 4) + (fGrams * 9));
-
-            document.getElementById('portionResultKcal').textContent = `${totalKcal} kcal`;
-            document.getElementById('portionResultP').textContent = `${pGrams.toFixed(1)}g`;
-            document.getElementById('portionResultC').textContent = `${cGrams.toFixed(1)}g`;
-            document.getElementById('portionResultF').textContent = `${fGrams.toFixed(1)}g`;
-
-            const pPct = calculated.proteinGrams > 0 ? ((pGrams / calculated.proteinGrams) * 100).toFixed(1) : 0;
-            const calPct = calculated.targetCalories > 0 ? ((totalKcal / calculated.targetCalories) * 100).toFixed(1) : 0;
-
-            document.getElementById('portionBudgetUsage').textContent = `Uses ~${pPct}% of Protein & ${calPct}% of Daily Calories`;
-        }
-
-        /* ==========================================================================
-           RECIPES & RECIPE LIBRARY LOGIC
-           ========================================================================== */
-        function openAddRecipeModal() {
-            document.getElementById('addRecipeModal').classList.remove('hidden');
-            document.getElementById('addRecipeModal').classList.add('flex');
-        }
-
-        function closeAddRecipeModal() {
-            document.getElementById('addRecipeModal').classList.add('hidden');
-            document.getElementById('addRecipeModal').classList.remove('flex');
-        }
-
-        async function saveNewRecipe() {
-            const name = document.getElementById('recipeNameInput').value.trim() || 'Custom Meal';
-            const serving = document.getElementById('recipeServingInput').value.trim() || '1 portion';
-            const p = parseFloat(document.getElementById('recipeProteinInput').value) || 0;
-            const c = parseFloat(document.getElementById('recipeCarbInput').value) || 0;
-            const f = parseFloat(document.getElementById('recipeFatInput').value) || 0;
-
-            const newRecipe = { id: Date.now().toString(), name, serving, protein: p, carbs: c, fat: f };
-            savedRecipes.push(newRecipe);
-
-            saveState();
-            renderRecipes();
-            closeAddRecipeModal();
-            showToast("Recipe added to library!");
-        }
-
-        function renderRecipes() {
-            const container = document.getElementById('recipeListContainer');
-            if (!container) return;
-            container.innerHTML = '';
-
-            savedRecipes.forEach((recipe) => {
-                const kcal = (recipe.protein * 4) + (recipe.carbs * 4) + (recipe.fat * 9);
-                const item = document.createElement('div');
-                item.className = "bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-2 flex flex-col justify-between";
-                item.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <h4 class="text-xs font-bold text-white">${recipe.name}</h4>
-                            <span class="text-[10px] font-mono text-slate-400">${kcal} kcal</span>
-                        </div>
-                        <p class="text-[10px] text-slate-500">${recipe.serving}</p>
-                        <div class="grid grid-cols-3 gap-1 mt-2 text-center text-[10px]">
-                            <div class="bg-slate-900 p-1 rounded border border-slate-800 text-protein font-mono font-bold">${recipe.protein}g P</div>
-                            <div class="bg-slate-900 p-1 rounded border border-slate-800 text-carbs font-mono font-bold">${recipe.carbs}g C</div>
-                            <div class="bg-slate-900 p-1 rounded border border-slate-800 text-fats font-mono font-bold">${recipe.fat}g F</div>
-                        </div>
-                    </div>
-                    <button onclick="logRecipePortion(${recipe.protein}, ${recipe.carbs}, ${recipe.fat})" class="w-full mt-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-brand-400 text-[10px] font-semibold border border-slate-700 transition">Log Portion</button>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        function logRecipePortion(p, c, f) {
-            document.getElementById('portionPPer100').value = p;
-            document.getElementById('portionCPer100').value = c;
-            document.getElementById('portionFPer100').value = f;
-            document.getElementById('portionGrams').value = 100;
-            calculatePortionImpact();
-            showToast("Recipe portion loaded into calculator!");
-        }
-
-        /* ==========================================================================
-           ICON CUSTOMIZER
-           ========================================================================== */
-        function openIconCustomizer() {
-            document.getElementById('iconCustomizerModal').classList.remove('hidden');
-            document.getElementById('iconCustomizerModal').classList.add('flex');
-        }
-
-        function closeIconCustomizer() {
-            document.getElementById('iconCustomizerModal').classList.add('hidden');
-            document.getElementById('iconCustomizerModal').classList.remove('flex');
-        }
-
-        function setIconGradient(gradClass, hex) {
-            selectedIconConfig.gradientClass = gradClass;
-            selectedIconConfig.bgHex = hex;
-            const box = document.getElementById('iconPreviewBox');
-            box.className = `w-24 h-24 rounded-3xl bg-gradient-to-tr ${gradClass} flex items-center justify-center shadow-2xl transition-all`;
-        }
-
-        function setIconSymbol(symbolClass) {
-            selectedIconConfig.symbolClass = symbolClass;
-            const symbol = document.getElementById('iconPreviewSymbol');
-            symbol.className = `${symbolClass} text-white text-4xl`;
-        }
-
-        function applyCustomIcon() {
-            const svgURI = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='${encodeURIComponent(selectedIconConfig.bgHex)}'/%3E%3Cpath d='M290 64L146 288h112l-32 160 144-224H258l32-160z' fill='%23ffffff'/%3E%3C/svg%3E`;
-            
-            document.getElementById('appleTouchIcon').setAttribute('href', svgURI);
-            document.getElementById('appFavicon').setAttribute('href', svgURI);
-
-            closeIconCustomizer();
-            showToast("Custom icon applied!");
-        }
-
-        /* ==========================================================================
-           CHART.JS INITIALIZATION
-           ========================================================================== */
-        function initChart() {
-            const ctx = document.getElementById('macroChart').getContext('2d');
-            macroChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Protein', 'Carbohydrates', 'Fats'],
-                    datasets: [{
-                        data: [660, 880, 660],
-                        backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
-                        borderWidth: 0,
-                        hoverOffset: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '78%',
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const val = context.raw || 0;
-                                    return ` ${label}: ${val} kcal`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        /* ==========================================================================
-           EXPORT & UTILITIES
-           ========================================================================== */
-        function exportDataToFile() {
-            const dataPayload = {
-                app: "MacroPulse Pro",
-                version: "2.0",
-                exportDate: new Date().toISOString(),
-                userSettings: state,
-                savedRecipes: savedRecipes
-            };
-
-            const jsonStr = JSON.stringify(dataPayload, null, 2);
-            const blob = new Blob([jsonStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `macropulse_backup_${new Date().toISOString().slice(0,10)}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            showToast("Backup file exported!");
-        }
-
-        function resetDefaults() {
-            localStorage.removeItem('macropulse_state');
-            state.units = 'imperial';
-            state.gender = 'male';
-            state.age = 28;
-            state.weight = 175;
-            state.heightFt = 5;
-            state.heightIn = 10;
-            state.heightCm = 178;
-            state.activity = 1.375;
-            state.goal = 'cut_moderate';
-            state.manualCaloriesOverride = false;
-            state.manualCalories = 2200;
-            state.macroMode = 'percentage';
-            state.proteinPct = 30;
-            state.carbPct = 40;
-            state.fatPct = 30;
-            state.proteinGPerWeight = 1.0;
-            state.fatGPerWeight = 0.35;
-            state.mealsCount = 4;
-            state.useCustomWebhook = false;
-            state.customStorageUrl = '';
-            state.customStorageToken = '';
-            state.linkedFileName = '';
-
-            fileHandle = null;
-            syncUIFromState();
-            updateCalculations();
-            updateStorageUI();
-            showToast("Reset to default settings.");
-        }
-
-        function exportSummary() {
-            const goalNames = {
-                'cut_aggressive': 'Aggressive Cut (-20%)',
-                'cut_moderate': 'Weight Loss (-15%)',
-                'maintain': 'Maintenance',
-                'bulk': 'Lean Bulk (+10%)'
-            };
-
-            const text = `
-🏃 MACROPULSE DAILY NUTRITION PLAN
-====================================
-• Goal: ${goalNames[state.goal] || 'Custom'}
-• Bodyweight: ${state.weight} ${state.units === 'imperial' ? 'lbs' : 'kg'}
-• Basal Metabolic Rate (BMR): ${calculated.bmr} kcal
-• Total Daily Energy Expenditure (TDEE): ${calculated.tdee} kcal
-
-🎯 DAILY TARGET INTAKE
-------------------------------------
-• Target Calories: ${calculated.targetCalories} kcal/day
-• Protein: ${calculated.proteinGrams}g (${calculated.proteinKcal} kcal / ${state.proteinPct}%)
-• Carbohydrates: ${calculated.carbGrams}g (${calculated.carbKcal} kcal / ${state.carbPct}%)
-• Fats: ${calculated.fatGrams}g (${calculated.fatKcal} kcal / ${state.fatPct}%)
-
-🍽️ MEAL SCHEDULE SPLIT (${state.mealsCount} Meals/Day)
-------------------------------------
-• Per Meal Average: ~${Math.round(calculated.targetCalories / state.mealsCount)} kcal
-• Protein/Meal: ${Math.round(calculated.proteinGrams / state.mealsCount)}g
-• Carbs/Meal: ${Math.round(calculated.carbGrams / state.mealsCount)}g
-• Fat/Meal: ${Math.round(calculated.fatGrams / state.mealsCount)}g
-
-Generated via MacroPulse Pro
-            `.trim();
-
-            copyToClipboard(text);
-            showToast("Nutrition plan summary copied to clipboard!");
-        }
-
-        function copyToClipboard(text) {
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text);
-            } else {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.style.position = 'fixed';
-                textarea.style.left = '-999999px';
-                document.body.appendChild(textarea);
-                textarea.select();
-                try {
-                    document.execCommand('copy');
-                } catch (e) {
-                    console.error('Copy failed', e);
-                }
-                document.body.removeChild(textarea);
-            }
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toastMsg');
-            toastMsg.textContent = msg;
-
-            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
-            }, 3000);
-        }
-    </script>
+      });
+    }
+
+    // Macro Calculation & Rendering
+    function renderApp() {
+      const totals = meals.reduce((acc, m) => {
+        acc.calories += m.calories;
+        acc.protein += m.protein;
+        acc.carbs += m.carbs;
+        acc.fats += m.fats;
+        return acc;
+      }, { calories: 0, protein: 0, carbs: 0, fats: 0 });
+
+      // Update Calorie Display
+      document.getElementById('calories-current').innerText = totals.calories.toLocaleString();
+      const calPercent = Math.min(Math.round((totals.calories / targets.calories) * 100), 100);
+      document.getElementById('calorie-progress-bar').style.width = `${calPercent}%`;
+      document.getElementById('calorie-percent').innerText = `${calPercent}%`;
+      const calRemaining = targets.calories - totals.calories;
+      document.getElementById('calorie-remaining').innerText = calRemaining >= 0 
+        ? `${calRemaining.toLocaleString()} kcal remaining` 
+        : `${Math.abs(calRemaining).toLocaleString()} kcal over limit`;
+
+      // Update Macros
+      ['protein', 'carbs', 'fats'].forEach(macro => {
+        document.getElementById(`${macro}-current`).innerText = totals[macro];
+        const pct = Math.min(Math.round((totals[macro] / targets[macro]) * 100), 100);
+        document.getElementById(`${macro}-bar`).style.width = `${pct}%`;
+      });
+
+      // Update Water Widget
+      document.getElementById('water-current').innerText = waterGlasses;
+
+      // Render Meal Items
+      renderMealLists();
+    }
+
+    function renderMealLists() {
+      const dashList = document.getElementById('dashboard-meal-list');
+      const fullList = document.getElementById('full-meal-list');
+
+      if (meals.length === 0) {
+        const emptyState = `<div class="glass-card p-6 rounded-2xl text-center text-xs text-[var(--text-secondary)]">No meals logged today yet. Tap "Log Meal" to get started!</div>`;
+        dashList.innerHTML = emptyState;
+        fullList.innerHTML = emptyState;
+        return;
+      }
+
+      const mealHTML = meals.map(m => `
+        <div class="glass-card p-3.5 rounded-2xl flex items-center justify-between">
+          <div>
+            <h4 class="font-bold text-sm text-[var(--text-primary)]">${m.name}</h4>
+            <p class="text-xs text-[var(--text-secondary)]">${m.calories} kcal • ${m.protein}g P • ${m.carbs}g C • ${m.fats}g F</p>
+          </div>
+          <button onclick="deleteMeal(${m.id})" class="w-8 h-8 rounded-lg text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-colors">
+            <i class="fa-regular fa-trash-can text-sm"></i>
+          </button>
+        </div>
+      `).join('');
+
+      dashList.innerHTML = mealHTML;
+      fullList.innerHTML = mealHTML;
+    }
+
+    // Modal Control Functions
+    function openAddMealModal() {
+      const modal = document.getElementById('add-meal-modal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('opacity-100');
+      modal.querySelector('div').classList.remove('translate-y-full');
+    }
+
+    function closeAddMealModal() {
+      const modal = document.getElementById('add-meal-modal');
+      modal.querySelector('div').classList.add('translate-y-full');
+      modal.classList.remove('opacity-100');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      document.getElementById('add-meal-form').reset();
+    }
+
+    function handleMealSubmit(e) {
+      e.preventDefault();
+      const newMeal = {
+        id: Date.now(),
+        name: document.getElementById('meal-name').value,
+        calories: parseInt(document.getElementById('meal-calories').value) || 0,
+        protein: parseInt(document.getElementById('meal-protein').value) || 0,
+        carbs: parseInt(document.getElementById('meal-carbs').value) || 0,
+        fats: parseInt(document.getElementById('meal-fats').value) || 0
+      };
+
+      meals.push(newMeal);
+      saveAndRender();
+      closeAddMealModal();
+    }
+
+    function quickAddPreset(name, calories, protein, carbs, fats) {
+      meals.push({ id: Date.now(), name, calories, protein, carbs, fats });
+      saveAndRender();
+      switchTab('dashboard');
+    }
+
+    function deleteMeal(id) {
+      meals = meals.filter(m => m.id !== id);
+      saveAndRender();
+    }
+
+    function addWater(delta) {
+      waterGlasses = Math.max(0, waterGlasses + delta);
+      localStorage.setItem('mise_water', waterGlasses);
+      renderApp();
+    }
+
+    function resetDailyLog() {
+      meals = [];
+      waterGlasses = 0;
+      localStorage.removeItem('mise_water');
+      saveAndRender();
+      toggleMenu(false);
+    }
+
+    function saveAndRender() {
+      localStorage.setItem('mise_meals', JSON.stringify(meals));
+      renderApp();
+    }
+  </script>
 </body>
 </html>
