@@ -1,1228 +1,1167 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Mise</title>
-  
-  <!-- Dynamic Apple Touch Icon Link -->
-  <link rel="apple-touch-icon" id="apple-touch-icon" href="apple-touch-icon-1.png">
-  
-  <!-- External CSS & Libraries -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- QuaggaJS Barcode Reader for camera scanning -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
-
-  <script>
-    tailwind.config = {
-      darkMode: ['class', '[data-theme="dark"]'],
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              DEFAULT: '#e73576',
-              hover: '#c42960',
-              light: '#fce7f0'
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Mise - Smart Meal Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d'
+                        }
+                    }
+                }
             }
-          }
         }
-      }
-    }
-  </script>
-
-  <style>
-    /* Strictly locking page scrolling on mobile viewports */
-    html, body {
-      height: 100%;
-      height: -webkit-fill-available;
-      width: 100vw;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      overscroll-behavior: none;
-      touch-action: manipulation;
-      user-select: none;
-      -webkit-user-select: none;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    /* CSS Color Tokens */
-    :root {
-      --bg-main: #121212;
-      --bg-card: #1e1e1e;
-      --bg-input: #2a2a2a;
-      --bg-nav: #18181b;
-      --text-primary: #f3f4f6;
-      --text-secondary: #9ca3af;
-      --border-color: #27272a;
-      --brand-accent: #e73576;
-    }
-
-    html[data-theme="light"] {
-      --bg-main: #f8f9fa;
-      --bg-card: #ffffff;
-      --bg-input: #f1f5f9;
-      --bg-nav: #ffffff;
-      --text-primary: #0f172a;
-      --text-secondary: #64748b;
-      --border-color: #e2e8f0;
-    }
-
-    html[data-theme="system"] {
-      @media (prefers-color-scheme: light) {
-        --bg-main: #f8f9fa;
-        --bg-card: #ffffff;
-        --bg-input: #f1f5f9;
-        --bg-nav: #ffffff;
-        --text-primary: #0f172a;
-        --text-secondary: #64748b;
-        --border-color: #e2e8f0;
-      }
-      @media (prefers-color-scheme: dark) {
-        --bg-main: #121212;
-        --bg-card: #1e1e1e;
-        --bg-input: #2a2a2a;
-        --bg-nav: #18181b;
-        --text-primary: #f3f4f6;
-        --text-secondary: #9ca3af;
-        --border-color: #27272a;
-      }
-    }
-
-    body {
-      background-color: var(--bg-main);
-      color: var(--text-primary);
-      transition: background-color 0.25s ease, color 0.25s ease;
-    }
-
-    /* Glass card utility */
-    .glass-card {
-      background-color: var(--bg-card);
-      border: 1px solid var(--border-color);
-    }
-
-    .app-input {
-      background-color: var(--bg-input);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-    }
-
-    .app-input:focus {
-      border-color: var(--brand-accent);
-      outline: none;
-    }
-
-    /* Custom touch scroll container */
-    .touch-scroll {
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    /* Quagga Scanner Camera Styling */
-    #interactive.viewport {
-      position: relative;
-      width: 100%;
-      height: 240px;
-      overflow: hidden;
-      border-radius: 1rem;
-    }
-
-    #interactive.viewport video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    #interactive.viewport canvas.drawingBuffer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-  </style>
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- HTML5 QRCode Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar for inner scrollable regions */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 9999px;
+        }
+        .scanner-viewport video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 0.75rem;
+        }
+    </style>
 </head>
-<body class="flex flex-col justify-between h-full w-full">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col h-screen w-screen overflow-hidden select-none">
 
-  <div id="landscape-overlay" class="fixed inset-0 z-50 bg-black/95 text-white flex flex-col items-center justify-center p-6 text-center hidden">
-    <i class="fa-solid fa-mobile-screen-button text-5xl text-brand mb-4 animate-bounce"></i>
-    <h2 class="text-xl font-bold mb-2">Please Rotate Your Device</h2>
-    <p class="text-sm text-gray-400">Mise is optimized exclusively for Portrait view on iPhone.</p>
-  </div>
-
-  <header class="sticky top-0 z-30 w-full px-4 py-3 bg-[var(--bg-nav)] border-b border-[var(--border-color)] flex items-center justify-between shrink-0">
-    <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
-      <div class="w-9 h-9 bg-brand text-white rounded-xl flex items-center justify-center font-black text-lg shadow-md shadow-brand/20">
-        <i class="fa-solid font-bold">M</i>
-      </div>
-      <!-- Hide 'Mise' title on mobile viewports (<640px) -->
-      <h1 class="hidden sm:block text-xl font-bold tracking-tight text-[var(--text-primary)]">Mise</h1>
-    </div>
-
-    <!-- Planned vs Actual View Toggle Pills -->
-    <div class="flex items-center bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border-color)]">
-      <button id="view-actual-btn" onclick="setTrackerView('actual')" class="px-3 py-1 text-xs font-bold rounded-lg transition-all bg-brand text-white shadow-sm">Actual</button>
-      <button id="view-planned-btn" onclick="setTrackerView('planned')" class="px-3 py-1 text-xs font-bold rounded-lg transition-all text-[var(--text-secondary)]">Planned</button>
-    </div>
-
-    <!-- Hamburger Toggle Button -->
-    <button id="hamburger-btn" onclick="toggleMenu()" class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-[var(--text-primary)] hover:border-brand/50 transition-all active:scale-95">
-      <i class="fa-solid fa-bars text-lg"></i>
-    </button>
-  </header>
-
-  <div id="drawer-backdrop" onclick="toggleMenu(false)" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300"></div>
-
-  <aside id="drawer-menu" class="fixed top-0 right-0 z-50 h-full w-80 max-w-[85vw] bg-[var(--bg-card)] border-l border-[var(--border-color)] transform translate-x-full transition-transform duration-300 ease-out flex flex-col shadow-2xl">
-    <!-- Drawer Header -->
-    <div class="p-4 border-b border-[var(--border-color)] flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-sliders text-brand"></i>
-        <span class="font-bold text-base text-[var(--text-primary)]">Menu & Preferences</span>
-      </div>
-      <button onclick="toggleMenu(false)" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center text-[var(--text-secondary)]">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
-
-    <!-- Scrollable Drawer Body -->
-    <div class="flex-1 touch-scroll p-4 space-y-6">
-      
-      <!-- Primary Section Nav Links -->
-      <nav class="space-y-1.5">
-        <p class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] px-2 mb-1">Navigation</p>
-        <button onclick="switchTab('dashboard')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left font-medium text-brand bg-brand/10">
-          <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-          <span>Dashboard</span>
-        </button>
-        <button onclick="switchTab('log')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left font-medium text-[var(--text-primary)] hover:bg-[var(--bg-input)]">
-          <i class="fa-solid fa-utensils w-5 text-center text-brand"></i>
-          <span>Meal Log & Builder</span>
-        </button>
-        <button onclick="switchTab('menus')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left font-medium text-[var(--text-primary)] hover:bg-[var(--bg-input)]">
-          <i class="fa-solid fa-folder-open w-5 text-center text-brand"></i>
-          <span>Saved Meal Menus</span>
-        </button>
-      </nav>
-
-      <hr class="border-[var(--border-color)]">
-
-      <!-- Meal Plan Goals Setup -->
-      <div class="space-y-3">
-        <p class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] px-2">Meal Plan Macro Goals</p>
-        <div class="space-y-2 text-xs">
-          <div>
-            <label class="text-[var(--text-secondary)] font-medium">Daily Calories (kcal)</label>
-            <input type="number" id="goal-calories" class="w-full mt-1 p-2 rounded-lg app-input" onchange="updateMacroPlanGoals()">
-          </div>
-          <div class="grid grid-cols-2 gap-2">
+    <!-- TOP NAVIGATION BAR -->
+    <header class="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <!-- App Icon replacement -->
+            <img src="apple-touch-icon.png" 
+                 alt="Mise Logo" 
+                 class="w-8 h-8 rounded-lg object-cover shadow-sm bg-brand-500"
+                 onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2322c55e\'><rect width=\'100\' height=\'100\' rx=\'20\'/><text x=\'50%\' y=\'55%\' font-size=\'50\' font-weight=\'bold\' fill=\'white\' text-anchor=\'middle\' dominant-baseline=\'middle\'>M</text></svg>';">
             <div>
-              <label class="text-[var(--text-secondary)] font-medium">Protein (g)</label>
-              <input type="number" id="goal-protein" class="w-full mt-1 p-2 rounded-lg app-input" onchange="updateMacroPlanGoals()">
+                <h1 class="font-bold text-lg leading-none text-gray-900 dark:text-white">Mise</h1>
+                <p class="text-[10px] text-gray-500 dark:text-gray-400 font-medium tracking-tight">Smart Food & Macro Tracker</p>
             </div>
-            <div>
-              <label class="text-[var(--text-secondary)] font-medium">Carbs (g)</label>
-              <input type="number" id="goal-carbs" class="w-full mt-1 p-2 rounded-lg app-input" onchange="updateMacroPlanGoals()">
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="text-[var(--text-secondary)] font-medium">Fats (g)</label>
-              <input type="number" id="goal-fats" class="w-full mt-1 p-2 rounded-lg app-input" onchange="updateMacroPlanGoals()">
-            </div>
-            <div>
-              <label class="text-[var(--text-secondary)] font-medium">Fiber (g)</label>
-              <input type="number" id="goal-fiber" class="w-full mt-1 p-2 rounded-lg app-input" onchange="updateMacroPlanGoals()">
-            </div>
-          </div>
         </div>
-      </div>
 
-      <hr class="border-[var(--border-color)]">
-
-      <!-- Theme Selector -->
-      <div class="space-y-3">
-        <p class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] px-2">Color Theme</p>
-        <div class="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)]">
-          <button onclick="setTheme('dark')" id="theme-btn-dark" class="py-2 text-xs font-medium rounded-lg text-center flex flex-col items-center gap-1">
-            <i class="fa-solid fa-moon"></i>
-            <span>Dark</span>
-          </button>
-          <button onclick="setTheme('light')" id="theme-btn-light" class="py-2 text-xs font-medium rounded-lg text-center flex flex-col items-center gap-1">
-            <i class="fa-solid fa-sun"></i>
-            <span>Light</span>
-          </button>
-          <button onclick="setTheme('system')" id="theme-btn-system" class="py-2 text-xs font-medium rounded-lg text-center flex flex-col items-center gap-1">
-            <i class="fa-solid fa-desktop"></i>
-            <span>System</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- App Icon Options -->
-      <div class="space-y-3">
-        <p class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] px-2">App Icon</p>
-        <div class="grid grid-cols-3 gap-2">
-          <button onclick="setAppIcon('1')" id="icon-option-1" class="p-2 rounded-xl border-2 border-brand bg-[var(--bg-input)] flex flex-col items-center gap-1 text-center">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand to-purple-600 flex items-center justify-center text-white font-black text-sm">M</div>
-            <span class="text-[10px] font-medium text-[var(--text-primary)]">Classic</span>
-          </button>
-          <button onclick="setAppIcon('2')" id="icon-option-2" class="p-2 rounded-xl border-2 border-transparent bg-[var(--bg-input)] flex flex-col items-center gap-1 text-center">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white font-black text-sm"><i class="fa-solid fa-carrot"></i></div>
-            <span class="text-[10px] font-medium text-[var(--text-primary)]">Carrot</span>
-          </button>
-          <button onclick="setAppIcon('3')" id="icon-option-3" class="p-2 rounded-xl border-2 border-transparent bg-[var(--bg-input)] flex flex-col items-center gap-1 text-center">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-black text-sm"><i class="fa-solid fa-fire"></i></div>
-            <span class="text-[10px] font-medium text-[var(--text-primary)]">Pulse</span>
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </aside>
-
-  <main class="flex-1 w-full max-w-lg mx-auto touch-scroll p-4 space-y-4">
-
-    <!-- DASHBOARD VIEW -->
-    <section id="tab-dashboard" class="space-y-4">
-      
-      <!-- Date & Quick Tools Bar -->
-      <div class="flex items-center justify-between">
-        <span id="current-date-display" class="text-lg font-extrabold text-[var(--text-primary)]">Today</span>
         <div class="flex items-center gap-2">
-          <button onclick="openRestaurantModal()" class="px-3 py-1.5 rounded-xl bg-brand/10 text-brand text-xs font-bold flex items-center gap-1.5 active:scale-95">
-            <i class="fa-solid fa-store"></i>
-            <span>Fast Food Adder</span>
-          </button>
-          <button onclick="openBarcodeModal()" class="w-8 h-8 rounded-xl bg-brand text-white flex items-center justify-center shadow-md active:scale-95">
-            <i class="fa-solid fa-barcode"></i>
-          </button>
+            <!-- Quick Add Barcode Button -->
+            <button onclick="openBarcodeModal()" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition" title="Scan Barcode">
+                <i class="fa-solid font-bold fa-barcode text-lg"></i>
+            </button>
+            <!-- Hamburger Menu Trigger -->
+            <button onclick="toggleMenu()" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition" title="Menu">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
         </div>
-      </div>
+    </header>
 
-      <!-- Calorie Hero Card -->
-      <div class="glass-card p-4 rounded-2xl relative">
-        <div class="flex justify-between items-start mb-2">
-          <div>
-            <span class="text-xs text-[var(--text-secondary)] font-medium">Calories (<span id="tracker-mode-label">Actual</span>)</span>
-            <div class="flex items-baseline gap-1 mt-0.5">
-              <span id="calories-current" class="text-2xl font-black text-[var(--text-primary)]">0</span>
-              <span class="text-xs text-[var(--text-secondary)]">/ <span id="calories-target">2,200</span> kcal</span>
-            </div>
-          </div>
-          <div class="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center font-bold text-lg">
-            <i class="fa-solid fa-fire"></i>
-          </div>
+    <!-- SLIDE-OVER MENU DRAWER -->
+    <div id="sideMenuOverlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300 opacity-0"></div>
+    <aside id="sideMenu" class="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-white dark:bg-gray-800 z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h2 class="font-bold text-gray-800 dark:text-gray-200">Settings & Menu</h2>
+            <button onclick="toggleMenu()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
         </div>
-
-        <div class="w-full bg-[var(--bg-input)] h-2.5 rounded-full overflow-hidden p-0.5 border border-[var(--border-color)]">
-          <div id="calorie-progress-bar" class="bg-gradient-to-r from-brand to-purple-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
-        </div>
-        <div class="flex justify-between text-[11px] text-[var(--text-secondary)] mt-1.5 font-medium">
-          <span id="calorie-remaining">2,200 remaining</span>
-          <span id="calorie-percent">0%</span>
-        </div>
-      </div>
-
-      <!-- Macros Grid Including Fiber -->
-      <div class="grid grid-cols-2 gap-2.5">
-        <!-- Protein -->
-        <div class="glass-card p-3 rounded-2xl space-y-1">
-          <div class="flex items-center justify-between text-xs text-[var(--text-secondary)]">
-            <span class="font-bold">Protein</span>
-            <i class="fa-solid fa-drumstick-bite text-amber-500"></i>
-          </div>
-          <div class="text-base font-black text-[var(--text-primary)]">
-            <span id="protein-current">0</span><span class="text-xs text-[var(--text-secondary)]"> / <span id="protein-target">160</span>g</span>
-          </div>
-          <div class="w-full bg-[var(--bg-input)] h-1.5 rounded-full overflow-hidden">
-            <div id="protein-bar" class="bg-amber-500 h-full rounded-full transition-all" style="width: 0%"></div>
-          </div>
-        </div>
-
-        <!-- Carbs -->
-        <div class="glass-card p-3 rounded-2xl space-y-1">
-          <div class="flex items-center justify-between text-xs text-[var(--text-secondary)]">
-            <span class="font-bold">Carbs</span>
-            <i class="fa-solid fa-wheat-awn text-emerald-500"></i>
-          </div>
-          <div class="text-base font-black text-[var(--text-primary)]">
-            <span id="carbs-current">0</span><span class="text-xs text-[var(--text-secondary)]"> / <span id="carbs-target">220</span>g</span>
-          </div>
-          <div class="w-full bg-[var(--bg-input)] h-1.5 rounded-full overflow-hidden">
-            <div id="carbs-bar" class="bg-emerald-500 h-full rounded-full transition-all" style="width: 0%"></div>
-          </div>
-        </div>
-
-        <!-- Fats -->
-        <div class="glass-card p-3 rounded-2xl space-y-1">
-          <div class="flex items-center justify-between text-xs text-[var(--text-secondary)]">
-            <span class="font-bold">Fats</span>
-            <i class="fa-solid fa-droplet text-cyan-500"></i>
-          </div>
-          <div class="text-base font-black text-[var(--text-primary)]">
-            <span id="fats-current">0</span><span class="text-xs text-[var(--text-secondary)]"> / <span id="fats-target">65</span>g</span>
-          </div>
-          <div class="w-full bg-[var(--bg-input)] h-1.5 rounded-full overflow-hidden">
-            <div id="fats-bar" class="bg-cyan-500 h-full rounded-full transition-all" style="width: 0%"></div>
-          </div>
-        </div>
-
-        <!-- Fiber -->
-        <div class="glass-card p-3 rounded-2xl space-y-1">
-          <div class="flex items-center justify-between text-xs text-[var(--text-secondary)]">
-            <span class="font-bold">Fiber</span>
-            <i class="fa-solid fa-seedling text-purple-500"></i>
-          </div>
-          <div class="text-base font-black text-[var(--text-primary)]">
-            <span id="fiber-current">0</span><span class="text-xs text-[var(--text-secondary)]"> / <span id="fiber-target">30</span>g</span>
-          </div>
-          <div class="w-full bg-[var(--bg-input)] h-1.5 rounded-full overflow-hidden">
-            <div id="fiber-bar" class="bg-purple-500 h-full rounded-full transition-all" style="width: 0%"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Planned vs Actual Macro Comparison Summary Widget -->
-      <div class="glass-card p-3.5 rounded-2xl space-y-2">
-        <div class="flex justify-between items-center">
-          <span class="text-xs font-bold text-[var(--text-primary)]">Planned vs. Actual Delta</span>
-          <span class="text-[10px] text-brand font-semibold" id="comparison-status">Balanced</span>
-        </div>
-        <div class="grid grid-cols-4 gap-2 text-center text-[11px]">
-          <div class="p-1.5 rounded-lg bg-[var(--bg-input)]">
-            <div class="text-[var(--text-secondary)]">Cal</div>
-            <div class="font-bold text-brand" id="delta-cal">0</div>
-          </div>
-          <div class="p-1.5 rounded-lg bg-[var(--bg-input)]">
-            <div class="text-[var(--text-secondary)]">Pro</div>
-            <div class="font-bold" id="delta-pro">0g</div>
-          </div>
-          <div class="p-1.5 rounded-lg bg-[var(--bg-input)]">
-            <div class="text-[var(--text-secondary)]">Carb</div>
-            <div class="font-bold" id="delta-carb">0g</div>
-          </div>
-          <div class="p-1.5 rounded-lg bg-[var(--bg-input)]">
-            <div class="text-[var(--text-secondary)]">Fib</div>
-            <div class="font-bold" id="delta-fib">0g</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Today's Meal Hierarchy Feed -->
-      <div class="space-y-2">
-        <div class="flex justify-between items-center px-1">
-          <h3 class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Today's Logged Items</h3>
-          <button onclick="openHierarchicalMealModal()" class="text-xs text-brand font-bold">+ Build Structured Meal</button>
-        </div>
-        <div id="dashboard-meal-list" class="space-y-2">
-          <!-- Dynamically populated hierarchically formatted meals -->
-        </div>
-      </div>
-
-    </section>
-
-    <section id="tab-log" class="space-y-4 hidden">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-bold text-[var(--text-primary)]">Meal & Drink Logs</h2>
-        <button onclick="openHierarchicalMealModal()" class="px-3 py-1.5 rounded-xl bg-brand text-white text-xs font-bold flex items-center gap-1.5">
-          <i class="fa-solid fa-plus"></i>
-          <span>Add Structured Meal</span>
-        </button>
-      </div>
-
-      <div id="full-meal-list" class="space-y-3">
-        <!-- Rendered Full Hierarchical Meals -->
-      </div>
-    </section>
-
-    <section id="tab-menus" class="space-y-4 hidden">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-bold text-[var(--text-primary)]">Saved Meal Menus</h2>
-        <button onclick="openSaveMenuModal()" class="px-3 py-1.5 rounded-xl bg-brand text-white text-xs font-bold">
-          <i class="fa-solid fa-bookmark mr-1"></i> Save Current Day
-        </button>
-      </div>
-
-      <div id="saved-menus-list" class="space-y-3">
-        <!-- Saved Menu Cards -->
-      </div>
-    </section>
-
-  </main>
-
-  <div id="restaurant-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-200">
-    <div class="w-full max-w-lg bg-[var(--bg-card)] border-t border-[var(--border-color)] rounded-t-2xl p-4 space-y-3 h-[85vh] flex flex-col shadow-2xl transform translate-y-full transition-transform duration-300">
-      
-      <div class="flex justify-between items-center border-b border-[var(--border-color)] pb-2">
-        <span class="font-bold text-base text-[var(--text-primary)]">Restaurant & Fast Food Database</span>
-        <button onclick="closeRestaurantModal()" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center text-[var(--text-secondary)]">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Restaurant Selector Tabs -->
-      <div class="grid grid-cols-3 gap-1 p-1 bg-[var(--bg-input)] rounded-xl border border-[var(--border-color)] text-xs font-bold">
-        <button onclick="filterRestaurant('Starbucks')" id="rest-btn-Starbucks" class="py-2 rounded-lg bg-brand text-white">Starbucks</button>
-        <button onclick="filterRestaurant('Chick-fil-A')" id="rest-btn-Chick-fil-A" class="py-2 rounded-lg text-[var(--text-secondary)]">Chick-fil-A</button>
-        <button onclick="filterRestaurant('Chipotle')" id="rest-btn-Chipotle" class="py-2 rounded-lg text-[var(--text-secondary)]">Chipotle</button>
-      </div>
-
-      <!-- Search Input -->
-      <input type="text" id="restaurant-search" placeholder="Search menu items..." onkeyup="renderRestaurantItems()" class="w-full p-2.5 rounded-xl app-input text-xs">
-
-      <!-- Items List -->
-      <div id="restaurant-items-list" class="flex-1 touch-scroll space-y-2 pr-1">
-        <!-- Items inserted here -->
-      </div>
-    </div>
-  </div>
-
-  <div id="barcode-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-200">
-    <div class="w-full max-w-lg bg-[var(--bg-card)] border-t border-[var(--border-color)] rounded-t-2xl p-4 space-y-3 max-h-[90vh] flex flex-col shadow-2xl">
-      
-      <div class="flex justify-between items-center border-b border-[var(--border-color)] pb-2">
-        <span class="font-bold text-base text-[var(--text-primary)]">Barcode & Food Finder</span>
-        <button onclick="closeBarcodeModal()" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center text-[var(--text-secondary)]">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Live Camera Scanner Viewport -->
-      <div id="interactive" class="viewport bg-black"></div>
-
-      <!-- Open Food Facts Manual Query -->
-      <div class="flex gap-2">
-        <input type="text" id="off-search-input" placeholder="Search Open Food Facts database..." class="flex-1 p-2.5 rounded-xl app-input text-xs">
-        <button onclick="searchOpenFoodFacts()" class="px-4 bg-brand text-white text-xs font-bold rounded-xl">Search</button>
-      </div>
-
-      <div id="off-results" class="flex-1 touch-scroll space-y-2 max-h-48">
-        <!-- Results from API or barcode scan -->
-      </div>
-    </div>
-  </div>
-
-  <div id="meal-builder-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-200">
-    <div class="w-full max-w-lg bg-[var(--bg-card)] border-t border-[var(--border-color)] rounded-t-2xl p-4 space-y-3 h-[90vh] flex flex-col shadow-2xl">
-      
-      <div class="flex justify-between items-center border-b border-[var(--border-color)] pb-2">
-        <span class="font-bold text-base text-[var(--text-primary)]">Hierarchical Meal Builder</span>
-        <button onclick="closeMealBuilderModal()" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center text-[var(--text-secondary)]">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="flex-1 touch-scroll space-y-3 pr-1">
-        <div>
-          <label class="text-[11px] font-bold text-[var(--text-secondary)] uppercase">Meal Name</label>
-          <input type="text" id="builder-meal-name" placeholder="e.g. High-Protein Breakfast" class="w-full mt-1 p-2.5 rounded-xl app-input text-xs">
-        </div>
-
-        <!-- Dishes / Meal Components Section -->
-        <div class="space-y-2 border-t border-[var(--border-color)] pt-2">
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-brand uppercase">Dish Components</span>
-            <button onclick="addDishRow()" class="text-xs text-brand font-bold">+ Add Dish</button>
-          </div>
-          <div id="dish-rows-container" class="space-y-2">
-            <!-- Dynamic Dish Rows -->
-          </div>
-        </div>
-
-        <!-- Drink with Meal Section -->
-        <div class="space-y-2 border-t border-[var(--border-color)] pt-2">
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-cyan-500 uppercase">Drink & Drink Components</span>
-            <button onclick="addDrinkRow()" class="text-xs text-cyan-500 font-bold">+ Add Drink</button>
-          </div>
-          <div id="drink-rows-container" class="space-y-2">
-            <!-- Dynamic Drink Component Rows -->
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-2 flex gap-2 border-t border-[var(--border-color)]">
-        <button onclick="closeMealBuilderModal()" class="w-1/2 py-2.5 rounded-xl glass-card font-semibold text-xs text-[var(--text-primary)]">Cancel</button>
-        <button onclick="saveStructuredMeal()" class="w-1/2 py-2.5 rounded-xl bg-brand text-white font-semibold text-xs shadow-md">Save Meal Structure</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="save-menu-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-200">
-    <div class="w-full max-w-lg bg-[var(--bg-card)] border-t border-[var(--border-color)] rounded-t-2xl p-4 space-y-3 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-[var(--border-color)] pb-2">
-        <span class="font-bold text-base text-[var(--text-primary)]">Save Menu Template</span>
-        <button onclick="closeSaveMenuModal()" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center text-[var(--text-secondary)]"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div>
-        <label class="text-[11px] font-bold text-[var(--text-secondary)] uppercase">Menu Preset Title</label>
-        <input type="text" id="menu-template-title" placeholder="e.g. Post-Workout Clean Eating" class="w-full mt-1 p-2.5 rounded-xl app-input text-xs">
-      </div>
-      <button onclick="confirmSaveMenuTemplate()" class="w-full py-2.5 rounded-xl bg-brand text-white font-semibold text-xs">Save Current Log to Menus</button>
-    </div>
-  </div>
-
-  <!-- Bottom Touch Navigation Bar -->
-  <footer class="sticky bottom-0 z-20 w-full bg-[var(--bg-nav)] border-t border-[var(--border-color)] px-6 py-2 shrink-0">
-    <div class="max-w-md mx-auto flex justify-around items-center">
-      <button onclick="switchTab('dashboard')" id="bottom-nav-dashboard" class="flex flex-col items-center gap-1 text-brand py-1">
-        <i class="fa-solid fa-chart-pie text-lg"></i>
-        <span class="text-[10px] font-bold">Dashboard</span>
-      </button>
-      <button onclick="switchTab('log')" id="bottom-nav-log" class="flex flex-col items-center gap-1 text-[var(--text-secondary)] py-1 hover:text-[var(--text-primary)]">
-        <i class="fa-solid fa-utensils text-lg"></i>
-        <span class="text-[10px] font-bold">Meal Log</span>
-      </button>
-      <button onclick="switchTab('menus')" id="bottom-nav-menus" class="flex flex-col items-center gap-1 text-[var(--text-secondary)] py-1 hover:text-[var(--text-primary)]">
-        <i class="fa-solid fa-folder-open text-lg"></i>
-        <span class="text-[10px] font-bold">Saved Menus</span>
-      </button>
-    </div>
-  </footer>
-
-  <script>
-    // --- APP DATA & STATE ENGINE ---
-    let activeTrackerView = 'actual'; // 'actual' vs 'planned'
-    
-    let planGoals = JSON.parse(localStorage.getItem('mise_goals')) || {
-      calories: 2200, protein: 160, carbs: 220, fats: 65, fiber: 30
-    };
-
-    let actualMeals = JSON.parse(localStorage.getItem('mise_actual_meals')) || [
-      {
-        id: 1,
-        name: "Morning Power Bowl",
-        dishes: [
-          { name: "Oatmeal with Almonds", calories: 350, protein: 12, carbs: 45, fats: 10, fiber: 8 }
-        ],
-        drinks: [
-          { name: "Black Iced Coffee", calories: 5, protein: 0, carbs: 1, fats: 0, fiber: 0 }
-        ]
-      }
-    ];
-
-    let plannedMeals = JSON.parse(localStorage.getItem('mise_planned_meals')) || [
-      {
-        id: 101,
-        name: "Planned Power Lunch",
-        dishes: [
-          { name: "Chicken Breast & Quinoa", calories: 550, protein: 48, carbs: 50, fats: 12, fiber: 6 }
-        ],
-        drinks: [
-          { name: "Sparkling Water", calories: 0, protein: 0, carbs: 0, fats: 0, fiber: 0 }
-        ]
-      }
-    ];
-
-    let savedMenus = JSON.parse(localStorage.getItem('mise_saved_menus')) || [
-      {
-        id: 991,
-        title: "High-Protein Clean Day",
-        meals: [
-          { name: "Chicken & Brown Rice", calories: 600, protein: 50, carbs: 60, fats: 12, fiber: 7 }
-        ]
-      }
-    ];
-
-    // Pre-loaded Fast Food Restaurant Database
-    const restaurantDB = [
-      // Starbucks
-      { rest: 'Starbucks', name: 'Egg White & Roasted Red Pepper Bites', cal: 170, p: 12, c: 11, f: 8, fib: 1 },
-      { rest: 'Starbucks', name: 'Spinach, Feta & Egg White Wrap', cal: 290, p: 20, c: 34, f: 8, fib: 3 },
-      { rest: 'Starbucks', name: 'Iced Brown Sugar Oatmilk Shaken Espresso', cal: 120, p: 1, c: 20, f: 4, fib: 1 },
-      { rest: 'Starbucks', name: 'Impossible Breakfast Sandwich', cal: 420, p: 21, c: 36, f: 22, fib: 3 },
-      
-      // Chick-fil-A
-      { rest: 'Chick-fil-A', name: 'Grilled Chicken Sandwich', cal: 390, p: 28, c: 44, f: 12, fib: 3 },
-      { rest: 'Chick-fil-A', name: '8ct Grilled Chicken Nuggets', cal: 130, p: 25, c: 1, f: 3, fib: 0 },
-      { rest: 'Chick-fil-A', name: 'Cobb Salad w/ Grilled Chicken', cal: 400, p: 40, c: 18, f: 22, fib: 5 },
-      { rest: 'Chick-fil-A', name: 'Fruit Cup (Medium)', cal: 60, p: 1, c: 15, f: 0, fib: 2 },
-
-      // Chipotle
-      { rest: 'Chipotle', name: 'Chicken Bowl w/ Black Beans & Fajitas', cal: 630, p: 54, c: 68, f: 18, fib: 15 },
-      { rest: 'Chipotle', name: 'Steak Burrito Bowl w/ Brown Rice', cal: 670, p: 42, c: 74, f: 22, fib: 11 },
-      { rest: 'Chipotle', name: 'Sofritas Salad Bowl w/ Guacamole', cal: 580, p: 18, c: 42, f: 38, fib: 16 }
-    ];
-
-    let currentRestFilter = 'Starbucks';
-
-    // --- LIFECYCLE INITIALIZATION ---
-    window.addEventListener('DOMContentLoaded', () => {
-      initTheme();
-      initAppIcon();
-      initGoalsUI();
-      checkOrientation();
-      window.addEventListener('resize', checkOrientation);
-      renderApp();
-    });
-
-    // Orientation Safety Alert
-    function checkOrientation() {
-      const overlay = document.getElementById('landscape-overlay');
-      if (window.innerWidth > window.innerHeight && window.innerWidth < 1024) {
-        overlay.classList.remove('hidden');
-      } else {
-        overlay.classList.add('hidden');
-      }
-    }
-
-    // Planned vs Actual View Switcher
-    function setTrackerView(view) {
-      activeTrackerView = view;
-      const actualBtn = document.getElementById('view-actual-btn');
-      const plannedBtn = document.getElementById('view-planned-btn');
-      const modeLabel = document.getElementById('tracker-mode-label');
-
-      if (view === 'actual') {
-        actualBtn.className = "px-3 py-1 text-xs font-bold rounded-lg transition-all bg-brand text-white shadow-sm";
-        plannedBtn.className = "px-3 py-1 text-xs font-bold rounded-lg transition-all text-[var(--text-secondary)]";
-        modeLabel.innerText = "Actual";
-      } else {
-        plannedBtn.className = "px-3 py-1 text-xs font-bold rounded-lg transition-all bg-brand text-white shadow-sm";
-        actualBtn.className = "px-3 py-1 text-xs font-bold rounded-lg transition-all text-[var(--text-secondary)]";
-        modeLabel.innerText = "Planned";
-      }
-      renderApp();
-    }
-
-    // Hamburger Menu Control
-    function toggleMenu(forceState) {
-      const drawer = document.getElementById('drawer-menu');
-      const backdrop = document.getElementById('drawer-backdrop');
-      const isOpen = drawer.classList.contains('translate-x-0');
-      const shouldOpen = forceState !== undefined ? forceState : !isOpen;
-
-      if (shouldOpen) {
-        drawer.classList.remove('translate-x-full');
-        drawer.classList.add('translate-x-0');
-        backdrop.classList.remove('opacity-0', 'pointer-events-none');
-        backdrop.classList.add('opacity-100');
-      } else {
-        drawer.classList.remove('translate-x-0');
-        drawer.classList.add('translate-x-full');
-        backdrop.classList.remove('opacity-100');
-        backdrop.classList.add('opacity-0', 'pointer-events-none');
-      }
-    }
-
-    // Tab Switcher
-    function switchTab(tabId) {
-      ['dashboard', 'log', 'menus'].forEach(tab => {
-        document.getElementById(`tab-${tab}`).classList.add('hidden');
-        const bNav = document.getElementById(`bottom-nav-${tab}`);
-        if (bNav) {
-          bNav.classList.remove('text-brand');
-          bNav.classList.add('text-[var(--text-secondary)]');
-        }
-      });
-
-      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-      const activeNav = document.getElementById(`bottom-nav-${tabId}`);
-      if (activeNav) {
-        activeNav.classList.add('text-brand');
-        activeNav.classList.remove('text-[var(--text-secondary)]');
-      }
-      toggleMenu(false);
-    }
-
-    // Theme Engine
-    function initTheme() {
-      const savedTheme = localStorage.getItem('mise_theme') || 'dark';
-      setTheme(savedTheme, false);
-    }
-
-    function setTheme(mode, save = true) {
-      document.documentElement.setAttribute('data-theme', mode);
-      if (save) localStorage.setItem('mise_theme', mode);
-
-      ['dark', 'light', 'system'].forEach(m => {
-        const btn = document.getElementById(`theme-btn-${m}`);
-        if (btn) {
-          btn.className = m === mode 
-            ? "py-2 text-xs font-medium rounded-lg text-center flex flex-col items-center gap-1 bg-brand text-white shadow-sm"
-            : "py-2 text-xs font-medium rounded-lg text-center flex flex-col items-center gap-1 text-[var(--text-secondary)]";
-        }
-      });
-    }
-
-    // App Icon Switcher
-    function initAppIcon() {
-      const savedIcon = localStorage.getItem('mise_app_icon') || '1';
-      setAppIcon(savedIcon, false);
-    }
-
-    function setAppIcon(iconId, save = true) {
-      const iconLink = document.getElementById('apple-touch-icon');
-      if (iconLink) iconLink.href = `apple-touch-icon-${iconId}.png`;
-      if (save) localStorage.setItem('mise_app_icon', iconId);
-
-      [1, 2, 3].forEach(id => {
-        const btn = document.getElementById(`icon-option-${id}`);
-        if (btn) {
-          if (id.toString() === iconId.toString()) {
-            btn.classList.add('border-brand');
-            btn.classList.remove('border-transparent');
-          } else {
-            btn.classList.remove('border-brand');
-            btn.classList.add('border-transparent');
-          }
-        }
-      });
-    }
-
-    // Goal Management
-    function initGoalsUI() {
-      document.getElementById('goal-calories').value = planGoals.calories;
-      document.getElementById('goal-protein').value = planGoals.protein;
-      document.getElementById('goal-carbs').value = planGoals.carbs;
-      document.getElementById('goal-fats').value = planGoals.fats;
-      document.getElementById('goal-fiber').value = planGoals.fiber;
-    }
-
-    function updateMacroPlanGoals() {
-      planGoals = {
-        calories: parseInt(document.getElementById('goal-calories').value) || 0,
-        protein: parseInt(document.getElementById('goal-protein').value) || 0,
-        carbs: parseInt(document.getElementById('goal-carbs').value) || 0,
-        fats: parseInt(document.getElementById('goal-fats').value) || 0,
-        fiber: parseInt(document.getElementById('goal-fiber').value) || 0
-      };
-      localStorage.setItem('mise_goals', JSON.stringify(planGoals));
-      renderApp();
-    }
-
-    function renderApp() {
-      const activeMeals = activeTrackerView === 'actual' ? actualMeals : plannedMeals;
-
-      // Compute Active Mode Totals
-      const totals = activeMeals.reduce((acc, meal) => {
-        const items = [...(meal.dishes || []), ...(meal.drinks || [])];
-        items.forEach(i => {
-          acc.calories += i.calories || 0;
-          acc.protein += i.protein || 0;
-          acc.carbs += i.carbs || 0;
-          acc.fats += i.fats || 0;
-          acc.fiber += i.fiber || 0;
-        });
-        return acc;
-      }, { calories: 0, protein: 0, carbs: 0, fats: 0, fiber: 0 });
-
-      // Update UI Header Targets
-      document.getElementById('calories-current').innerText = totals.calories.toLocaleString();
-      document.getElementById('calories-target').innerText = planGoals.calories.toLocaleString();
-
-      const calPct = Math.min(Math.round((totals.calories / planGoals.calories) * 100), 100);
-      document.getElementById('calorie-progress-bar').style.width = `${calPct}%`;
-      document.getElementById('calorie-percent').innerText = `${calPct}%`;
-      
-      const remCal = planGoals.calories - totals.calories;
-      document.getElementById('calorie-remaining').innerText = remCal >= 0 ? `${remCal} kcal remaining` : `${Math.abs(remCal)} kcal over`;
-
-      // Update Macro Bars
-      ['protein', 'carbs', 'fats', 'fiber'].forEach(m => {
-        document.getElementById(`${m}-current`).innerText = totals[m];
-        document.getElementById(`${m}-target`).innerText = planGoals[m];
-        const pct = Math.min(Math.round((totals[m] / planGoals[m]) * 100), 100);
-        document.getElementById(`${m}-bar`).style.width = `${pct}%`;
-      });
-
-      // Compute Planned vs Actual Delta Comparison
-      computeComparisonDelta();
-
-      // Render Meal Hierarchy Cards
-      renderMealLists();
-      renderSavedMenus();
-    }
-
-    function computeComparisonDelta() {
-      const getSum = (arr) => arr.reduce((acc, meal) => {
-        [...(meal.dishes || []), ...(meal.drinks || [])].forEach(i => {
-          acc.cal += i.calories || 0;
-          acc.pro += i.protein || 0;
-          acc.carb += i.carbs || 0;
-          acc.fib += i.fiber || 0;
-        });
-        return acc;
-      }, { cal: 0, pro: 0, carb: 0, fib: 0 });
-
-      const act = getSum(actualMeals);
-      const pln = getSum(plannedMeals);
-
-      const dCal = act.cal - pln.cal;
-      const dPro = act.pro - pln.pro;
-      const dCarb = act.carb - pln.carb;
-      const dFib = act.fib - pln.fib;
-
-      document.getElementById('delta-cal').innerText = `${dCal > 0 ? '+' : ''}${dCal}`;
-      document.getElementById('delta-pro').innerText = `${dPro > 0 ? '+' : ''}${dPro}g`;
-      document.getElementById('delta-carb').innerText = `${dCarb > 0 ? '+' : ''}${dCarb}g`;
-      document.getElementById('delta-fib').innerText = `${dFib > 0 ? '+' : ''}${dFib}g`;
-
-      const status = document.getElementById('comparison-status');
-      if (dCal === 0) {
-        status.innerText = "On Track";
-        status.className = "text-[10px] text-emerald-500 font-semibold";
-      } else if (dCal > 0) {
-        status.innerText = `+${dCal} kcal vs Plan`;
-        status.className = "text-[10px] text-amber-500 font-semibold";
-      } else {
-        status.innerText = `${dCal} kcal under Plan`;
-        status.className = "text-[10px] text-brand font-semibold";
-      }
-    }
-
-    function renderMealLists() {
-      const activeMeals = activeTrackerView === 'actual' ? actualMeals : plannedMeals;
-      const dashList = document.getElementById('dashboard-meal-list');
-      const fullList = document.getElementById('full-meal-list');
-
-      if (activeMeals.length === 0) {
-        const empty = `<div class="glass-card p-4 rounded-2xl text-center text-xs text-[var(--text-secondary)]">No ${activeTrackerView} items logged. Tap "Add Structured Meal" to build one!</div>`;
-        dashList.innerHTML = empty;
-        fullList.innerHTML = empty;
-        return;
-      }
-
-      const html = activeMeals.map(m => {
-        const dishItems = (m.dishes || []).map(d => `
-          <div class="flex justify-between items-center text-xs text-[var(--text-primary)] pl-2 border-l-2 border-brand/40 my-1">
-            <span>• ${d.name}</span>
-            <span class="text-[10px] text-[var(--text-secondary)]">${d.calories}k | ${d.protein}P | ${d.carbs}C | ${d.fiber}Fib</span>
-          </div>
-        `).join('');
-
-        const drinkItems = (m.drinks || []).map(dr => `
-          <div class="flex justify-between items-center text-xs text-[var(--text-primary)] pl-2 border-l-2 border-cyan-500/40 my-1">
-            <span>🥤 ${dr.name}</span>
-            <span class="text-[10px] text-[var(--text-secondary)]">${dr.calories}k | ${dr.protein}P | ${dr.carbs}C</span>
-          </div>
-        `).join('');
-
-        return `
-          <div class="glass-card p-3 rounded-2xl space-y-2">
-            <div class="flex justify-between items-center border-b border-[var(--border-color)] pb-1.5">
-              <span class="font-bold text-sm text-[var(--text-primary)]">${m.name}</span>
-              <button onclick="deleteMeal(${m.id})" class="text-red-400 text-xs px-2"><i class="fa-regular fa-trash-can"></i></button>
-            </div>
-            ${dishItems}
-            ${drinkItems}
-          </div>
-        `;
-      }).join('');
-
-      dashList.innerHTML = html;
-      fullList.innerHTML = html;
-    }
-
-    function renderSavedMenus() {
-      const container = document.getElementById('saved-menus-list');
-      if (savedMenus.length === 0) {
-        container.innerHTML = `<div class="glass-card p-4 rounded-2xl text-center text-xs text-[var(--text-secondary)]">No saved menu presets.</div>`;
-        return;
-      }
-
-      container.innerHTML = savedMenus.map(menu => `
-        <div class="glass-card p-3.5 rounded-2xl space-y-2">
-          <div class="flex justify-between items-center">
-            <h4 class="font-bold text-sm text-[var(--text-primary)]">${menu.title}</h4>
-            <div class="flex gap-2">
-              <button onclick="applySavedMenu(${menu.id})" class="px-2.5 py-1 bg-brand text-white rounded-lg text-xs font-bold">+ Load into Today</button>
-              <button onclick="deleteSavedMenu(${menu.id})" class="text-red-400 text-xs"><i class="fa-regular fa-trash-can"></i></button>
-            </div>
-          </div>
-          <p class="text-xs text-[var(--text-secondary)]">${menu.meals.length} meal components saved</p>
-        </div>
-      `).join('');
-    }
-
-    function openRestaurantModal() {
-      const m = document.getElementById('restaurant-modal');
-      m.classList.remove('opacity-0', 'pointer-events-none');
-      m.classList.add('opacity-100');
-      m.querySelector('div').classList.remove('translate-y-full');
-      filterRestaurant('Starbucks');
-    }
-
-    function closeRestaurantModal() {
-      const m = document.getElementById('restaurant-modal');
-      m.querySelector('div').classList.add('translate-y-full');
-      m.classList.remove('opacity-100');
-      m.classList.add('opacity-0', 'pointer-events-none');
-    }
-
-    function filterRestaurant(restName) {
-      currentRestFilter = restName;
-      ['Starbucks', 'Chick-fil-A', 'Chipotle'].forEach(r => {
-        const btn = document.getElementById(`rest-btn-${r}`);
-        if (r === restName) {
-          btn.className = "py-2 rounded-lg bg-brand text-white";
-        } else {
-          btn.className = "py-2 rounded-lg text-[var(--text-secondary)]";
-        }
-      });
-      renderRestaurantItems();
-    }
-
-    function renderRestaurantItems() {
-      const query = document.getElementById('restaurant-search').value.toLowerCase();
-      const list = document.getElementById('restaurant-items-list');
-
-      const items = restaurantDB.filter(i => i.rest === currentRestFilter && i.name.toLowerCase().includes(query));
-
-      list.innerHTML = items.map(i => `
-        <div class="glass-card p-3 rounded-xl flex items-center justify-between">
-          <div>
-            <div class="font-bold text-xs text-[var(--text-primary)]">${i.name}</div>
-            <div class="text-[10px] text-[var(--text-secondary)]">${i.cal} kcal • ${i.p}g P • ${i.c}g C • ${i.f}g F • ${i.fib}g Fib</div>
-          </div>
-          <button onclick="addFastFoodItem('${i.name.replace(/'/g, "\\'")}', ${i.cal}, ${i.p}, ${i.c}, ${i.f}, ${i.fib})" class="px-2.5 py-1 bg-brand/10 text-brand font-bold rounded-lg text-xs">+ Add</button>
-        </div>
-      `).join('');
-    }
-
-    function addFastFoodItem(name, cal, p, c, f, fib) {
-      const targetList = activeTrackerView === 'actual' ? actualMeals : plannedMeals;
-      targetList.push({
-        id: Date.now(),
-        name: `${currentRestFilter} Entry`,
-        dishes: [{ name, calories: cal, protein: p, carbs: c, fats: f, fiber: fib }],
-        drinks: []
-      });
-      saveAndRender();
-      closeRestaurantModal();
-    }
-
-    function openBarcodeModal() {
-      const m = document.getElementById('barcode-modal');
-      m.classList.remove('opacity-0', 'pointer-events-none');
-      m.classList.add('opacity-100');
-      
-      // Start Quagga Camera Barcode Reader
-      if (navigator.mediaDevices && typeof Quagga !== 'undefined') {
-        Quagga.init({
-          inputStream: {
-            name: "Live",
-            type: "LiveStream",
-            target: document.querySelector('#interactive'),
-            constraints: { facingMode: "environment" }
-          },
-          decoder: { readers: ["ecd_reader", "ean_reader", "upc_reader"] }
-        }, function(err) {
-          if (!err) Quagga.start();
-        });
-
-        Quagga.onDetected(result => {
-          if (result.codeResult.code) {
-            Quagga.stop();
-            fetchOFFBarcode(result.codeResult.code);
-          }
-        });
-      }
-    }
-
-    function closeBarcodeModal() {
-      const m = document.getElementById('barcode-modal');
-      m.classList.remove('opacity-100');
-      m.classList.add('opacity-0', 'pointer-events-none');
-      if (typeof Quagga !== 'undefined') Quagga.stop();
-    }
-
-    function fetchOFFBarcode(barcode) {
-      fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 1) {
-            renderOFFItem(data.product);
-          } else {
-            alert('Barcode not found in Open Food Facts database.');
-          }
-        });
-    }
-
-    function searchOpenFoodFacts() {
-      const query = document.getElementById('off-search-input').value;
-      if (!query) return;
-
-      fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`)
-        .then(res => res.json())
-        .then(data => {
-          const results = document.getElementById('off-results');
-          if (data.products && data.products.length > 0) {
-            results.innerHTML = data.products.slice(0, 5).map(p => `
-              <div class="glass-card p-2.5 rounded-xl flex items-center justify-between">
-                <div>
-                  <div class="font-bold text-xs text-[var(--text-primary)]">${p.product_name || 'Food Item'}</div>
-                  <div class="text-[10px] text-[var(--text-secondary)]">${Math.round(p.nutriments?.['energy-kcal_100g'] || 0)} kcal/100g</div>
+        <div class="p-4 space-y-6 flex-1 overflow-y-auto">
+            <!-- Theme Controls -->
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Theme Mode</label>
+                <div class="grid grid-cols-3 gap-2 p-1 bg-gray-100 dark:bg-gray-700 rounded-xl">
+                    <button onclick="setTheme('light')" id="themeBtnLight" class="py-1.5 text-xs font-medium rounded-lg transition text-gray-700 dark:text-gray-300">Light</button>
+                    <button onclick="setTheme('dark')" id="themeBtnDark" class="py-1.5 text-xs font-medium rounded-lg transition text-gray-700 dark:text-gray-300">Dark</button>
+                    <button onclick="setTheme('system')" id="themeBtnSystem" class="py-1.5 text-xs font-medium rounded-lg transition text-gray-700 dark:text-gray-300">System</button>
                 </div>
-                <button onclick="addOFFItemDirect('${(p.product_name || 'Food Item').replace(/'/g, "\\'")}', ${Math.round(p.nutriments?.['energy-kcal_100g'] || 0)}, ${Math.round(p.nutriments?.proteins_100g || 0)}, ${Math.round(p.nutriments?.carbohydrates_100g || 0)}, ${Math.round(p.nutriments?.fat_100g || 0)}, ${Math.round(p.nutriments?.fiber_100g || 0)})" class="px-2 py-1 bg-brand text-white text-xs font-bold rounded-lg">+ Add</button>
-              </div>
+            </div>
+
+            <!-- Daily Goals Setting -->
+            <div class="space-y-3">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Daily Macro Targets</label>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                        <span class="text-gray-500">Calories (kcal)</span>
+                        <input type="number" id="targetCal" value="2000" onchange="updateTargets()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg">
+                    </div>
+                    <div>
+                        <span class="text-gray-500">Protein (g)</span>
+                        <input type="number" id="targetPro" value="150" onchange="updateTargets()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg">
+                    </div>
+                    <div>
+                        <span class="text-gray-500">Carbs (g)</span>
+                        <input type="number" id="targetCarb" value="200" onchange="updateTargets()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg">
+                    </div>
+                    <div>
+                        <span class="text-gray-500">Fat (g)</span>
+                        <input type="number" id="targetFat" value="65" onchange="updateTargets()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg">
+                    </div>
+                    <div class="col-span-2">
+                        <span class="text-gray-500">Fiber Target (g)</span>
+                        <input type="number" id="targetFiber" value="30" onchange="updateTargets()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                <button onclick="clearTodayLog()" class="w-full py-2 px-3 text-left text-xs text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left"></i> Reset Today's Log
+                </button>
+                <button onclick="clearAllData()" class="w-full py-2 px-3 text-left text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-trash"></i> Reset All Saved Data
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 overflow-y-auto relative p-4 max-w-2xl mx-auto w-full pb-24">
+        
+        <!-- MACRO SUMMARY DASHBOARD -->
+        <section class="mb-6 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700/60">
+            <div class="flex justify-between items-center mb-3">
+                <div>
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Daily Summary</h2>
+                    <p id="dashboardDate" class="text-sm font-bold text-gray-800 dark:text-gray-100"></p>
+                </div>
+                <div class="text-right">
+                    <span id="sumCal" class="text-2xl font-black text-brand-600 dark:text-brand-500">0</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">/ <span id="targetCalDisp">2000</span> kcal</span>
+                </div>
+            </div>
+
+            <!-- Macro Progress Bars -->
+            <div class="space-y-2.5">
+                <!-- Protein -->
+                <div>
+                    <div class="flex justify-between text-xs font-medium mb-1">
+                        <span class="text-emerald-600 dark:text-emerald-400">Protein</span>
+                        <span class="text-gray-600 dark:text-gray-300"><span id="sumPro">0</span>g / <span id="targetProDisp">150</span>g</span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                        <div id="barPro" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Carbs -->
+                <div>
+                    <div class="flex justify-between text-xs font-medium mb-1">
+                        <span class="text-blue-600 dark:text-blue-400">Carbs</span>
+                        <span class="text-gray-600 dark:text-gray-300"><span id="sumCarb">0</span>g / <span id="targetCarbDisp">200</span>g</span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                        <div id="barCarb" class="bg-blue-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Fat -->
+                <div>
+                    <div class="flex justify-between text-xs font-medium mb-1">
+                        <span class="text-amber-600 dark:text-amber-400">Fat</span>
+                        <span class="text-gray-600 dark:text-gray-300"><span id="sumFat">0</span>g / <span id="targetFatDisp">65</span>g</span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                        <div id="barFat" class="bg-amber-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Fiber -->
+                <div>
+                    <div class="flex justify-between text-xs font-medium mb-1">
+                        <span class="text-purple-600 dark:text-purple-400">Dietary Fiber</span>
+                        <span class="text-gray-600 dark:text-gray-300"><span id="sumFiber">0</span>g / <span id="targetFiberDisp">30</span>g</span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                        <div id="barFiber" class="bg-purple-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 1: TODAY LOG -->
+        <div id="viewLog" class="view-panel space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-gray-800 dark:text-gray-100">Today's Meal Log</h3>
+                <button onclick="switchTab('search')" class="text-xs bg-brand-500 hover:bg-brand-600 text-white font-medium py-1.5 px-3 rounded-lg flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-plus text-xs"></i> Add Food
+                </button>
+            </div>
+            
+            <div id="logListContainer" class="space-y-2">
+                <!-- Dynamic Log Items Rendered Here -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: REAL-TIME SEARCH & ADD -->
+        <div id="viewSearch" class="view-panel hidden space-y-4">
+            <!-- Search Bar -->
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-gray-400"></i>
+                <input type="text" id="foodSearchInput" oninput="handleFoodSearch()" placeholder="Type to search foods (e.g., Apple, Chicken, Oats)..." 
+                       class="w-full pl-10 pr-10 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+                <button onclick="openBarcodeModal()" class="absolute right-3 top-2.5 p-1 text-gray-400 hover:text-brand-500" title="Scan Barcode">
+                    <i class="fa-solid fa-barcode text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Fast Food Quick Builders Launcher -->
+            <div>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">Fast Food Builders</span>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="openChipotleModal()" class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center hover:border-brand-500 transition shadow-sm">
+                        <i class="fa-solid fa-pepper-hot text-red-500 text-xl mb-1"></i>
+                        <span class="text-xs font-bold">Chipotle</span>
+                    </button>
+                    <button onclick="openStarbucksModal()" class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center hover:border-brand-500 transition shadow-sm">
+                        <i class="fa-solid fa-mug-hot text-emerald-600 text-xl mb-1"></i>
+                        <span class="text-xs font-bold">Starbucks</span>
+                    </button>
+                    <button onclick="openChickFilAModal()" class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center hover:border-brand-500 transition shadow-sm">
+                        <i class="fa-solid fa-drumstick-bite text-red-600 text-xl mb-1"></i>
+                        <span class="text-xs font-bold">Chick-fil-A</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live Search Results List -->
+            <div id="searchResults" class="space-y-2">
+                <!-- Dynamic Search Items -->
+            </div>
+        </div>
+
+        <!-- VIEW 3: MENUS & CUSTOM DISHES -->
+        <div id="viewMenus" class="view-panel hidden space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-gray-800 dark:text-gray-100">Saved Meal Menus</h3>
+                <button onclick="openCustomDishModal()" class="text-xs bg-brand-500 hover:bg-brand-600 text-white font-medium py-1.5 px-3 rounded-lg flex items-center gap-1 shadow-sm">
+                    <i class="fa-solid fa-plus text-xs"></i> New Custom Item
+                </button>
+            </div>
+
+            <div id="customDishesContainer" class="space-y-2">
+                <!-- Custom Saved Dishes -->
+            </div>
+        </div>
+    </main>
+
+    <!-- BOTTOM NAV TAB BAR -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-30 px-6 py-2">
+        <div class="max-w-md mx-auto flex justify-around items-center">
+            <button onclick="switchTab('log')" id="navLog" class="flex flex-col items-center gap-1 text-brand-500 transition">
+                <i class="fa-solid fa-list-check text-lg"></i>
+                <span class="text-[10px] font-medium">Daily Log</span>
+            </button>
+            <button onclick="switchTab('search')" id="navSearch" class="flex flex-col items-center gap-1 text-gray-400 hover:text-brand-500 transition">
+                <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                <span class="text-[10px] font-medium">Search Food</span>
+            </button>
+            <button onclick="switchTab('menus')" id="navMenus" class="flex flex-col items-center gap-1 text-gray-400 hover:text-brand-500 transition">
+                <i class="fa-solid fa-book-open text-lg"></i>
+                <span class="text-[10px] font-medium">Saved Menus</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- BARCODE SCANNER MODAL -->
+    <div id="barcodeModal" class="fixed inset-0 bg-black/70 z-50 hidden flex flex-col items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-4 shadow-2xl relative flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-barcode text-brand-500"></i> Barcode Scanner
+                </h3>
+                <button onclick="closeBarcodeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Scanner Feed Window -->
+            <div id="reader" class="w-full bg-black rounded-xl overflow-hidden min-h-[250px] relative flex items-center justify-center">
+                <p id="scannerStatusText" class="text-xs text-gray-400 text-center px-4">Initializing camera access...</p>
+            </div>
+
+            <!-- Manual Barcode Input Fallback -->
+            <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex gap-2">
+                <input type="text" id="manualBarcode" placeholder="Or enter barcode manually..." class="flex-1 text-xs p-2.5 bg-gray-100 dark:bg-gray-700 rounded-lg border-none focus:ring-2 focus:ring-brand-500">
+                <button onclick="lookupManualBarcode()" class="bg-brand-500 hover:bg-brand-600 text-white px-3 py-2 text-xs font-semibold rounded-lg">Lookup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHIPOTLE CUSTOMIZER MODAL -->
+    <div id="chipotleModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg p-5 shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-bold text-red-600 flex items-center gap-2">
+                    <i class="fa-solid fa-pepper-hot"></i> Chipotle Customizer
+                </h3>
+                <button onclick="closeChipotleModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="overflow-y-auto flex-1 py-3 space-y-4 pr-1">
+                <!-- Base Selection -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">1. Choose Meal Base</label>
+                    <select id="chipotleBase" onchange="calcChipotleMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-600">
+                        <option value="burrito">Burrito (Flour Tortilla) [+320 kcal, 50g C]</option>
+                        <option value="bowl" selected>Bowl (No Tortilla)</option>
+                        <option value="tacos">Crispy Corn Tacos (3) [+200 kcal, 32g C]</option>
+                        <option value="salad">Salad (Supergreens Base) [+15 kcal]</option>
+                    </select>
+                </div>
+
+                <!-- Protein Selection -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">2. Choose Protein</label>
+                    <select id="chipotleProtein" onchange="calcChipotleMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-600">
+                        <option value="chicken">Chicken (180 kcal, 32g P, 7g F)</option>
+                        <option value="steak">Steak (150 kcal, 21g P, 6g F)</option>
+                        <option value="barbacoa">Barbacoa (170 kcal, 24g P, 7g F)</option>
+                        <option value="carnitas">Carnitas (210 kcal, 23g P, 12g F)</option>
+                        <option value="sofritas">Sofritas (150 kcal, 8g P, 10g F, 9g C)</option>
+                        <option value="veggie">Veggie (Includes Guacamole)</option>
+                    </select>
+                </div>
+
+                <!-- Rice & Beans -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Rice</label>
+                        <select id="chipotleRice" onchange="calcChipotleMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs border border-gray-200 dark:border-gray-600">
+                            <option value="white">Cilantro-Lime White Rice (210 kcal)</option>
+                            <option value="brown">Cilantro-Lime Brown Rice (210 kcal, 2g Fib)</option>
+                            <option value="none">No Rice</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Beans</label>
+                        <select id="chipotleBeans" onchange="calcChipotleMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs border border-gray-200 dark:border-gray-600">
+                            <option value="black">Black Beans (130 kcal, 8g P, 7g Fib)</option>
+                            <option value="pinto">Pinto Beans (130 kcal, 8g P, 6g Fib)</option>
+                            <option value="none">No Beans</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Toppings Checkboxes -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Toppings & Extras</label>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <label class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg"><input type="checkbox" id="chip_guac" onchange="calcChipotleMacros()" class="rounded text-brand-500"> Guacamole (+230 kcal)</label>
+                        <label class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg"><input type="checkbox" id="chip_cheese" onchange="calcChipotleMacros()" class="rounded text-brand-500"> Monterey Jack Cheese (+110 kcal)</label>
+                        <label class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg"><input type="checkbox" id="chip_sourcream" onchange="calcChipotleMacros()" class="rounded text-brand-500"> Sour Cream (+110 kcal)</label>
+                        <label class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg"><input type="checkbox" id="chip_queso" onchange="calcChipotleMacros()" class="rounded text-brand-500"> Queso Blanco (+120 kcal)</label>
+                        <label class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg"><input type="checkbox" id="chip_fajita" onchange="calcChipotleMacros()" class="rounded text-brand-500"> Fajita Veggies (+20 kcal)</label>
+                        <label class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg"><input type="checkbox" id="chip_salsa_tomato" onchange="calcChipotleMacros()" class="rounded text-brand-500"> Fresh Tomato Salsa (+25 kcal)</label>
+                        <label class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg"><input type="checkbox" id="chip_salsa_corn" onchange="calcChipotleMacros()" class="rounded text-brand-500"> Roasted Corn Salsa (+80 kcal)</label>
+                        <label class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg"><input type="checkbox" id="chip_salsa_red" onchange="calcChipotleMacros()" class="rounded text-brand-500"> Tomatillo Red Chili (+30 kcal)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Live Macros Display Banner -->
+            <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-xl flex justify-between items-center text-xs font-bold mb-3">
+                <span>Total: <span id="chipTotalCal" class="text-brand-600 dark:text-brand-400 text-sm">0</span> kcal</span>
+                <span>P: <span id="chipTotalPro">0</span>g</span>
+                <span>C: <span id="chipTotalCarb">0</span>g</span>
+                <span>F: <span id="chipTotalFat">0</span>g</span>
+                <span>Fib: <span id="chipTotalFib">0</span>g</span>
+            </div>
+
+            <button onclick="addChipotleToLog()" class="w-full py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition">Add Chipotle Meal to Log</button>
+        </div>
+    </div>
+
+    <!-- STARBUCKS CUSTOMIZER MODAL -->
+    <div id="starbucksModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg p-5 shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-bold text-emerald-600 flex items-center gap-2">
+                    <i class="fa-solid fa-mug-hot"></i> Starbucks Customizer
+                </h3>
+                <button onclick="closeStarbucksModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="overflow-y-auto flex-1 py-3 space-y-4 pr-1">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Drink Selection</label>
+                    <select id="sbDrink" onchange="calcStarbucksMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-600">
+                        <option value="latte">Caffè Latte</option>
+                        <option value="brown_sugar">Iced Brown Sugar Oatmilk Shaken Espresso</option>
+                        <option value="macchiato">Iced Caramel Macchiato</option>
+                        <option value="cold_brew">Cold Brew Coffee</option>
+                        <option value="matcha">Matcha Tea Latte</option>
+                        <option value="pink_drink">Pink Drink (Strawberry Açaí)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Size</label>
+                    <select id="sbSize" onchange="calcStarbucksMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-600">
+                        <option value="tall">Tall (12 fl oz)</option>
+                        <option value="grande" selected>Grande (16 fl oz)</option>
+                        <option value="venti">Venti (24 fl oz)</option>
+                        <option value="trenta">Trenta (30 fl oz - Cold Brew/Pink Drink only)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Milk Choice</label>
+                    <select id="sbMilk" onchange="calcStarbucksMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-600">
+                        <option value="2percent">2% Milk (Standard)</option>
+                        <option value="whole">Whole Milk</option>
+                        <option value="skim">Nonfat Skim Milk</option>
+                        <option value="oat">Oatmilk</option>
+                        <option value="almond">Almondmilk</option>
+                        <option value="soy">Soymilk</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Syrup Pumps</label>
+                        <input type="number" id="sbSyrups" value="2" min="0" max="10" onchange="calcStarbucksMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs border border-gray-200 dark:border-gray-600">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Cold Foam / Topping</label>
+                        <select id="sbFoam" onchange="calcStarbucksMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs border border-gray-200 dark:border-gray-600">
+                            <option value="none">None</option>
+                            <option value="sweet_cream">Vanilla Sweet Cream Cold Foam (+110 kcal)</option>
+                            <option value="whipped_cream">Whipped Cream (+80 kcal)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Starbucks Macros Display -->
+            <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-xl flex justify-between items-center text-xs font-bold mb-3">
+                <span>Total: <span id="sbTotalCal" class="text-emerald-600 text-sm">0</span> kcal</span>
+                <span>P: <span id="sbTotalPro">0</span>g</span>
+                <span>C: <span id="sbTotalCarb">0</span>g</span>
+                <span>F: <span id="sbTotalFat">0</span>g</span>
+                <span>Fib: <span id="sbTotalFib">0</span>g</span>
+            </div>
+
+            <button onclick="addStarbucksToLog()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">Add Starbucks Drink to Log</button>
+        </div>
+    </div>
+
+    <!-- CHICK-FIL-A CUSTOMIZER MODAL -->
+    <div id="chickFilAModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg p-5 shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-bold text-red-600 flex items-center gap-2">
+                    <i class="fa-solid fa-drumstick-bite"></i> Chick-fil-A Customizer
+                </h3>
+                <button onclick="closeChickFilAModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="overflow-y-auto flex-1 py-3 space-y-4 pr-1">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Entree</label>
+                    <select id="cfaEntree" onchange="calcCFAMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-600">
+                        <option value="sandwich">Chick-fil-A Chicken Sandwich (440 kcal, 29g P)</option>
+                        <option value="deluxe">Chick-fil-A Deluxe Sandwich (500 kcal, 32g P)</option>
+                        <option value="spicy">Spicy Chicken Sandwich (460 kcal, 31g P)</option>
+                        <option value="nuggets_8">Nuggets 8-Count (250 kcal, 27g P)</option>
+                        <option value="nuggets_12">Nuggets 12-Count (380 kcal, 40g P)</option>
+                        <option value="grilled_nuggets_8">Grilled Nuggets 8-Count (130 kcal, 25g P)</option>
+                        <option value="grilled_club">Grilled Chicken Club Sandwich (520 kcal, 38g P)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Side</label>
+                    <select id="cfaSide" onchange="calcCFAMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-600">
+                        <option value="fries_med">Waffle Potato Fries (Medium - 420 kcal)</option>
+                        <option value="fries_lg">Waffle Potato Fries (Large - 600 kcal)</option>
+                        <option value="mac_med">Mac & Cheese (Medium - 450 kcal)</option>
+                        <option value="side_salad">Side Salad (160 kcal, 3g Fib)</option>
+                        <option value="none">No Side</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Sauce Choice</label>
+                        <select id="cfaSauce" onchange="calcCFAMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs border border-gray-200 dark:border-gray-600">
+                            <option value="cfa">Chick-fil-A Sauce (+140 kcal)</option>
+                            <option value="polynesian">Polynesian Sauce (+110 kcal)</option>
+                            <option value="ranch">Garden Herb Ranch (+140 kcal)</option>
+                            <option value="bbq">Barbeque Sauce (+45 kcal)</option>
+                            <option value="buffalo">Zesty Buffalo (+25 kcal)</option>
+                            <option value="none">No Sauce</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Sauce Count</label>
+                        <input type="number" id="cfaSauceQty" value="1" min="0" max="5" onchange="calcCFAMacros()" class="w-full mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs border border-gray-200 dark:border-gray-600">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-xl flex justify-between items-center text-xs font-bold mb-3">
+                <span>Total: <span id="cfaTotalCal" class="text-red-600 text-sm">0</span> kcal</span>
+                <span>P: <span id="cfaTotalPro">0</span>g</span>
+                <span>C: <span id="cfaTotalCarb">0</span>g</span>
+                <span>F: <span id="cfaTotalFat">0</span>g</span>
+                <span>Fib: <span id="cfaTotalFib">0</span>g</span>
+            </div>
+
+            <button onclick="addCFAToLog()" class="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition">Add Chick-fil-A Meal to Log</button>
+        </div>
+    </div>
+
+    <!-- NEW CUSTOM ITEM MODAL -->
+    <div id="customDishModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-5 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-gray-900 dark:text-white">Create Custom Food</h3>
+                <button onclick="closeCustomDishModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form onsubmit="saveCustomItem(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="text-gray-500 font-medium">Food Name</label>
+                    <input type="text" id="custName" required placeholder="e.g. Protein Smoothie Bowl" class="w-full mt-1 p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+                </div>
+                <div>
+                    <label class="text-gray-500 font-medium">Brand (Optional)</label>
+                    <input type="text" id="custBrand" placeholder="e.g. Homemade" class="w-full mt-1 p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-gray-500 font-medium">Calories (kcal)</label>
+                        <input type="number" id="custCal" required value="250" class="w-full mt-1 p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="text-gray-500 font-medium">Protein (g)</label>
+                        <input type="number" step="0.1" id="custPro" required value="20" class="w-full mt-1 p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="text-gray-500 font-medium">Carbs (g)</label>
+                        <input type="number" step="0.1" id="custCarb" required value="30" class="w-full mt-1 p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="text-gray-500 font-medium">Fat (g)</label>
+                        <input type="number" step="0.1" id="custFat" required value="5" class="w-full mt-1 p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="text-gray-500 font-medium">Dietary Fiber (g)</label>
+                        <input type="number" step="0.1" id="custFiber" required value="4" class="w-full mt-1 p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+                    </div>
+                </div>
+                <button type="submit" class="w-full mt-2 py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl transition">Save Custom Food</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        /* APP STATE INITIALIZATION */
+        const DEFAULT_FOOD_DB = [
+            { id: 'f1', name: 'Chicken Breast (Grilled)', brand: 'Generic', cal: 165, pro: 31, carb: 0, fat: 3.6, fiber: 0 },
+            { id: 'f2', name: 'Brown Rice (Cooked)', brand: 'Generic', cal: 216, pro: 5, carb: 45, fat: 1.8, fiber: 3.5 },
+            { id: 'f3', name: 'Avocado (Medium)', brand: 'Fresh', cal: 240, pro: 3, carb: 12, fat: 22, fiber: 10 },
+            { id: 'f4', name: 'Whole Eggs (Large)', brand: 'Generic', cal: 140, pro: 12, carb: 1, fat: 10, fiber: 0 },
+            { id: 'f5', name: 'Greek Yogurt 0%', brand: 'Chobani', cal: 90, pro: 16, carb: 6, fat: 0, fiber: 0 },
+            { id: 'f6', name: 'Rolled Oats (Dry)', brand: 'Quaker', cal: 150, pro: 5, carb: 27, fat: 2.5, fiber: 4 },
+            { id: 'f7', name: 'Banana (Medium)', brand: 'Fresh', cal: 105, pro: 1.3, carb: 27, fat: 0.3, fiber: 3.1 },
+            { id: 'f8', name: 'Whey Protein Powder', brand: 'Optimum Nutrition', cal: 120, pro: 24, carb: 3, fat: 1.5, fiber: 1 },
+            { id: 'f9', name: 'Almonds (1 oz / 28g)', brand: 'Blue Diamond', cal: 160, pro: 6, carb: 6, fat: 14, fiber: 3.5 },
+            { id: 'f10', name: 'Salmon Fillet (Baked)', brand: 'Generic', cal: 206, pro: 22, carb: 0, fat: 12, fiber: 0 }
+        ];
+
+        let state = {
+            targets: { cal: 2000, pro: 150, carb: 200, fat: 65, fiber: 30 },
+            logs: [],
+            customFoods: [],
+            theme: 'dark'
+        };
+
+        let html5QrCodeScanner = null;
+        let searchDebounceTimer = null;
+
+        /* INITIALIZATION ON WINDOW LOAD */
+        window.onload = function() {
+            loadState();
+            applyTheme();
+            updateDashboardDate();
+            renderLog();
+            renderSearchResults(DEFAULT_FOOD_DB);
+            renderCustomDishes();
+        };
+
+        function updateDashboardDate() {
+            const now = new Date();
+            const options = { weekday: 'short', month: 'short', day: 'numeric' };
+            document.getElementById('dashboardDate').innerText = now.toLocaleDateString('en-US', options);
+        }
+
+        /* LOCAL STORAGE MANAGERS */
+        function loadState() {
+            const saved = localStorage.getItem('mise_app_state');
+            if (saved) {
+                try {
+                    state = Object.assign(state, JSON.parse(saved));
+                } catch(e) { console.error("Error loading saved state", e); }
+            }
+            document.getElementById('targetCal').value = state.targets.cal;
+            document.getElementById('targetPro').value = state.targets.pro;
+            document.getElementById('targetCarb').value = state.targets.carb;
+            document.getElementById('targetFat').value = state.targets.fat;
+            document.getElementById('targetFiber').value = state.targets.fiber;
+            updateDashboard();
+        }
+
+        function saveState() {
+            localStorage.setItem('mise_app_state', JSON.stringify(state));
+            updateDashboard();
+        }
+
+        /* THEME CONTROLLER */
+        function setTheme(mode) {
+            state.theme = mode;
+            saveState();
+            applyTheme();
+        }
+
+        function applyTheme() {
+            const html = document.documentElement;
+            const isDark = state.theme === 'dark' || (state.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            
+            if (isDark) {
+                html.classList.add('dark');
+            } else {
+                html.classList.remove('dark');
+            }
+
+            // Update UI buttons state
+            ['Light', 'Dark', 'System'].forEach(m => {
+                const btn = document.getElementById('themeBtn' + m);
+                if (btn) {
+                    if (state.theme === m.toLowerCase()) {
+                        btn.className = "py-1.5 text-xs font-medium rounded-lg transition bg-white dark:bg-gray-800 text-brand-600 dark:text-brand-400 shadow-sm";
+                    } else {
+                        btn.className = "py-1.5 text-xs font-medium rounded-lg transition text-gray-700 dark:text-gray-300";
+                    }
+                }
+            });
+        }
+
+        /* NAVIGATION TABS */
+        function switchTab(tabName) {
+            document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
+            document.getElementById('navLog').className = "flex flex-col items-center gap-1 text-gray-400 hover:text-brand-500 transition";
+            document.getElementById('navSearch').className = "flex flex-col items-center gap-1 text-gray-400 hover:text-brand-500 transition";
+            document.getElementById('navMenus').className = "flex flex-col items-center gap-1 text-gray-400 hover:text-brand-500 transition";
+
+            if (tabName === 'log') {
+                document.getElementById('viewLog').classList.remove('hidden');
+                document.getElementById('navLog').className = "flex flex-col items-center gap-1 text-brand-500 font-semibold transition";
+            } else if (tabName === 'search') {
+                document.getElementById('viewSearch').classList.remove('hidden');
+                document.getElementById('navSearch').className = "flex flex-col items-center gap-1 text-brand-500 font-semibold transition";
+                document.getElementById('foodSearchInput').focus();
+            } else if (tabName === 'menus') {
+                document.getElementById('viewMenus').classList.remove('hidden');
+                document.getElementById('navMenus').className = "flex flex-col items-center gap-1 text-brand-500 font-semibold transition";
+            }
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('sideMenu');
+            const overlay = document.getElementById('sideMenuOverlay');
+            if (menu.classList.contains('translate-x-full')) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+                menu.classList.remove('translate-x-full');
+            } else {
+                overlay.classList.add('opacity-0');
+                menu.classList.add('translate-x-full');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        /* MACRO METRICS DASHBOARD UPDATE */
+        function updateTargets() {
+            state.targets.cal = Number(document.getElementById('targetCal').value) || 2000;
+            state.targets.pro = Number(document.getElementById('targetPro').value) || 150;
+            state.targets.carb = Number(document.getElementById('targetCarb').value) || 200;
+            state.targets.fat = Number(document.getElementById('targetFat').value) || 65;
+            state.targets.fiber = Number(document.getElementById('targetFiber').value) || 30;
+            saveState();
+        }
+
+        function updateDashboard() {
+            document.getElementById('targetCalDisp').innerText = state.targets.cal;
+            document.getElementById('targetProDisp').innerText = state.targets.pro;
+            document.getElementById('targetCarbDisp').innerText = state.targets.carb;
+            document.getElementById('targetFatDisp').innerText = state.targets.fat;
+            document.getElementById('targetFiberDisp').innerText = state.targets.fiber;
+
+            let sums = state.logs.reduce((acc, item) => {
+                acc.cal += item.cal || 0;
+                acc.pro += item.pro || 0;
+                acc.carb += item.carb || 0;
+                acc.fat += item.fat || 0;
+                acc.fiber += item.fiber || 0;
+                return acc;
+            }, { cal: 0, pro: 0, carb: 0, fat: 0, fiber: 0 });
+
+            document.getElementById('sumCal').innerText = Math.round(sums.cal);
+            document.getElementById('sumPro').innerText = Math.round(sums.pro);
+            document.getElementById('sumCarb').innerText = Math.round(sums.carb);
+            document.getElementById('sumFat').innerText = Math.round(sums.fat);
+            document.getElementById('sumFiber').innerText = Math.round(sums.fiber);
+
+            // Progress Bars Percentages
+            document.getElementById('barPro').style.width = Math.min(100, (sums.pro / state.targets.pro) * 100) + '%';
+            document.getElementById('barCarb').style.width = Math.min(100, (sums.carb / state.targets.carb) * 100) + '%';
+            document.getElementById('barFat').style.width = Math.min(100, (sums.fat / state.targets.fat) * 100) + '%';
+            document.getElementById('barFiber').style.width = Math.min(100, (sums.fiber / state.targets.fiber) * 100) + '%';
+        }
+
+        /* REAL-TIME TYPE-AHEAD SEARCH FUNCTIONALITY */
+        function handleFoodSearch() {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                const query = document.getElementById('foodSearchInput').value.toLowerCase().trim();
+                const combinedDB = [...state.customFoods, ...DEFAULT_FOOD_DB];
+                if (!query) {
+                    renderSearchResults(combinedDB);
+                    return;
+                }
+                const filtered = combinedDB.filter(item => 
+                    item.name.toLowerCase().includes(query) || 
+                    (item.brand && item.brand.toLowerCase().includes(query))
+                );
+                renderSearchResults(filtered);
+            }, 150);
+        }
+
+        function renderSearchResults(items) {
+            const container = document.getElementById('searchResults');
+            if (items.length === 0) {
+                container.innerHTML = `<div class="text-center p-6 text-gray-400 text-xs">No food items found matching query</div>`;
+                return;
+            }
+            container.innerHTML = items.map(item => `
+                <div class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700/80 rounded-xl flex items-center justify-between shadow-sm">
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-800 dark:text-gray-100">${item.name}</h4>
+                        <p class="text-[10px] text-gray-500">${item.brand || 'Generic'} • ${item.cal} kcal</p>
+                        <div class="flex gap-2 text-[10px] text-gray-400 mt-1">
+                            <span>P: ${item.pro}g</span>
+                            <span>C: ${item.carb}g</span>
+                            <span>F: ${item.fat}g</span>
+                            <span class="text-purple-500 font-medium">Fib: ${item.fiber || 0}g</span>
+                        </div>
+                    </div>
+                    <button onclick='addFoodToLog(${JSON.stringify(item)})' class="p-2 bg-brand-500/10 hover:bg-brand-500 text-brand-600 hover:text-white rounded-lg transition text-xs font-semibold">
+                        <i class="fa-solid fa-plus"></i> Add
+                    </button>
+                </div>
             `).join('');
-          }
-        });
-    }
-
-    function addOFFItemDirect(name, cal, p, c, f, fib) {
-      const targetList = activeTrackerView === 'actual' ? actualMeals : plannedMeals;
-      targetList.push({
-        id: Date.now(),
-        name: "Scanned Food Item",
-        dishes: [{ name, calories: cal, protein: p, carbs: c, fats: f, fiber: fib }],
-        drinks: []
-      });
-      saveAndRender();
-      closeBarcodeModal();
-    }
-
-    function openHierarchicalMealModal() {
-      const m = document.getElementById('meal-builder-modal');
-      m.classList.remove('opacity-0', 'pointer-events-none');
-      m.classList.add('opacity-100');
-      m.querySelector('div').classList.remove('translate-y-full');
-      
-      document.getElementById('dish-rows-container').innerHTML = '';
-      document.getElementById('drink-rows-container').innerHTML = '';
-      addDishRow();
-    }
-
-    function closeMealBuilderModal() {
-      const m = document.getElementById('meal-builder-modal');
-      m.querySelector('div').classList.add('translate-y-full');
-      m.classList.remove('opacity-100');
-      m.classList.add('opacity-0', 'pointer-events-none');
-    }
-
-    function addDishRow() {
-      const container = document.getElementById('dish-rows-container');
-      const div = document.createElement('div');
-      div.className = "dish-row glass-card p-2 rounded-xl space-y-1.5";
-      div.innerHTML = `
-        <input type="text" placeholder="Dish Component Name" class="dish-name w-full p-2 rounded-lg app-input text-xs">
-        <div class="grid grid-cols-5 gap-1 text-[10px]">
-          <input type="number" placeholder="kcal" class="dish-cal p-1.5 rounded-lg app-input">
-          <input type="number" placeholder="Pro" class="dish-p p-1.5 rounded-lg app-input">
-          <input type="number" placeholder="Carb" class="dish-c p-1.5 rounded-lg app-input">
-          <input type="number" placeholder="Fat" class="dish-f p-1.5 rounded-lg app-input">
-          <input type="number" placeholder="Fib" class="dish-fib p-1.5 rounded-lg app-input">
-        </div>
-      `;
-      container.appendChild(div);
-    }
-
-    function addDrinkRow() {
-      const container = document.getElementById('drink-rows-container');
-      const div = document.createElement('div');
-      div.className = "drink-row glass-card p-2 rounded-xl space-y-1.5";
-      div.innerHTML = `
-        <input type="text" placeholder="Drink / Drink Component" class="drink-name w-full p-2 rounded-lg app-input text-xs">
-        <div class="grid grid-cols-4 gap-1 text-[10px]">
-          <input type="number" placeholder="kcal" class="drink-cal p-1.5 rounded-lg app-input">
-          <input type="number" placeholder="Pro" class="drink-p p-1.5 rounded-lg app-input">
-          <input type="number" placeholder="Carb" class="drink-c p-1.5 rounded-lg app-input">
-          <input type="number" placeholder="Fat" class="drink-f p-1.5 rounded-lg app-input">
-        </div>
-      `;
-      container.appendChild(div);
-    }
-
-    function saveStructuredMeal() {
-      const mealName = document.getElementById('builder-meal-name').value || "Structured Meal";
-      const dishes = [];
-      const drinks = [];
-
-      document.querySelectorAll('.dish-row').forEach(row => {
-        const name = row.querySelector('.dish-name').value;
-        if (name) {
-          dishes.push({
-            name,
-            calories: parseInt(row.querySelector('.dish-cal').value) || 0,
-            protein: parseInt(row.querySelector('.dish-p').value) || 0,
-            carbs: parseInt(row.querySelector('.dish-c').value) || 0,
-            fats: parseInt(row.querySelector('.dish-f').value) || 0,
-            fiber: parseInt(row.querySelector('.dish-fib').value) || 0
-          });
         }
-      });
 
-      document.querySelectorAll('.drink-row').forEach(row => {
-        const name = row.querySelector('.drink-name').value;
-        if (name) {
-          drinks.push({
-            name,
-            calories: parseInt(row.querySelector('.drink-cal').value) || 0,
-            protein: parseInt(row.querySelector('.drink-p').value) || 0,
-            carbs: parseInt(row.querySelector('.drink-c').value) || 0,
-            fats: parseInt(row.querySelector('.drink-f').value) || 0,
-            fiber: 0
-          });
+        /* LOG MANAGEMENT */
+        function addFoodToLog(item) {
+            state.logs.push({
+                logId: Date.now(),
+                name: item.name,
+                brand: item.brand || '',
+                cal: Number(item.cal),
+                pro: Number(item.pro),
+                carb: Number(item.carb),
+                fat: Number(item.fat),
+                fiber: Number(item.fiber || 0)
+            });
+            saveState();
+            renderLog();
+            switchTab('log');
         }
-      });
 
-      const targetList = activeTrackerView === 'actual' ? actualMeals : plannedMeals;
-      targetList.push({ id: Date.now(), name: mealName, dishes, drinks });
-      saveAndRender();
-      closeMealBuilderModal();
-    }
+        function removeLogItem(logId) {
+            state.logs = state.logs.filter(i => i.logId !== logId);
+            saveState();
+            renderLog();
+        }
 
-    // Saved Menus Management
-    function openSaveMenuModal() {
-      const m = document.getElementById('save-menu-modal');
-      m.classList.remove('opacity-0', 'pointer-events-none');
-      m.classList.add('opacity-100');
-    }
+        function renderLog() {
+            const container = document.getElementById('logListContainer');
+            if (state.logs.length === 0) {
+                container.innerHTML = `<div class="text-center p-8 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 text-gray-400 text-xs">No food items logged today yet</div>`;
+                return;
+            }
+            container.innerHTML = state.logs.map(item => `
+                <div class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl flex items-center justify-between shadow-sm">
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-800 dark:text-gray-100">${item.name}</h4>
+                        <p class="text-[10px] text-gray-500">${item.cal} kcal | P: ${item.pro}g • C: ${item.carb}g • F: ${item.fat}g • Fib: ${item.fiber}g</p>
+                    </div>
+                    <button onclick="removeLogItem(${item.logId})" class="text-gray-400 hover:text-red-500 p-1.5 transition">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
 
-    function closeSaveMenuModal() {
-      const m = document.getElementById('save-menu-modal');
-      m.classList.remove('opacity-100');
-      m.classList.add('opacity-0', 'pointer-events-none');
-    }
+        function clearTodayLog() {
+            if (confirm("Clear all items logged today?")) {
+                state.logs = [];
+                saveState();
+                renderLog();
+                toggleMenu();
+            }
+        }
 
-    function confirmSaveMenuTemplate() {
-      const title = document.getElementById('menu-template-title').value || "Saved Menu";
-      const activeMeals = activeTrackerView === 'actual' ? actualMeals : plannedMeals;
-      
-      savedMenus.push({
-        id: Date.now(),
-        title,
-        meals: JSON.parse(JSON.stringify(activeMeals))
-      });
+        function clearAllData() {
+            if (confirm("Reset all stored data including custom items?")) {
+                localStorage.removeItem('mise_app_state');
+                location.reload();
+            }
+        }
 
-      localStorage.setItem('mise_saved_menus', JSON.stringify(savedMenus));
-      renderApp();
-      closeSaveMenuModal();
-    }
+        /* CHIPOTLE CUSTOMIZER LOGIC */
+        function openChipotleModal() {
+            document.getElementById('chipotleModal').classList.remove('hidden');
+            calcChipotleMacros();
+        }
+        function closeChipotleModal() {
+            document.getElementById('chipotleModal').classList.add('hidden');
+        }
 
-    function applySavedMenu(menuId) {
-      const menu = savedMenus.find(m => m.id === menuId);
-      if (menu) {
-        const targetList = activeTrackerView === 'actual' ? actualMeals : plannedMeals;
-        menu.meals.forEach(m => targetList.push(JSON.parse(JSON.stringify(m))));
-        saveAndRender();
-        switchTab('dashboard');
-      }
-    }
+        function calcChipotleMacros() {
+            let cal = 0, pro = 0, carb = 0, fat = 0, fib = 0;
 
-    function deleteSavedMenu(menuId) {
-      savedMenus = savedMenus.filter(m => m.id !== menuId);
-      localStorage.setItem('mise_saved_menus', JSON.stringify(savedMenus));
-      renderApp();
-    }
+            const base = document.getElementById('chipotleBase').value;
+            if (base === 'burrito') { cal += 320; carb += 50; fat += 9; pro += 8; fib += 3; }
+            else if (base === 'tacos') { cal += 200; carb += 32; fat += 4.5; pro += 4; fib += 3; }
+            else if (base === 'salad') { cal += 15; carb += 3; pro += 1; fib += 1; }
 
-    function deleteMeal(id) {
-      if (activeTrackerView === 'actual') {
-        actualMeals = actualMeals.filter(m => m.id !== id);
-      } else {
-        plannedMeals = plannedMeals.filter(m => m.id !== id);
-      }
-      saveAndRender();
-    }
+            const prot = document.getElementById('chipotleProtein').value;
+            if (prot === 'chicken') { cal += 180; pro += 32; fat += 7; }
+            else if (prot === 'steak') { cal += 150; pro += 21; fat += 6; }
+            else if (prot === 'barbacoa') { cal += 170; pro += 24; fat += 7; }
+            else if (prot === 'carnitas') { cal += 210; pro += 23; fat += 12; }
+            else if (prot === 'sofritas') { cal += 150; pro += 8; carb += 9; fat += 10; fib += 3; }
+            else if (prot === 'veggie') { cal += 230; carb += 8; fat += 22; pro += 2; fib += 6; } // Guac included
 
-    function saveAndRender() {
-      localStorage.setItem('mise_actual_meals', JSON.stringify(actualMeals));
-      localStorage.setItem('mise_planned_meals', JSON.stringify(plannedMeals));
-      renderApp();
-    }
-  </script>
+            const rice = document.getElementById('chipotleRice').value;
+            if (rice === 'white') { cal += 210; carb += 40; fat += 4; pro += 4; }
+            else if (rice === 'brown') { cal += 210; carb += 36; fat += 4.5; pro += 4; fib += 2; }
+
+            const beans = document.getElementById('chipotleBeans').value;
+            if (beans === 'black') { cal += 130; carb += 22; pro += 8; fib += 7; }
+            else if (beans === 'pinto') { cal += 130; carb += 21; pro += 8; fib += 6; }
+
+            if (document.getElementById('chip_guac').checked && prot !== 'veggie') { cal += 230; fat += 22; carb += 8; fib += 6; }
+            if (document.getElementById('chip_cheese').checked) { cal += 110; fat += 8.5; pro += 6; }
+            if (document.getElementById('chip_sourcream').checked) { cal += 110; fat += 9; pro += 2; }
+            if (document.getElementById('chip_queso').checked) { cal += 120; fat += 8.5; pro += 5; }
+            if (document.getElementById('chip_fajita').checked) { cal += 20; carb += 5; fib += 1; }
+            if (document.getElementById('chip_salsa_tomato').checked) { cal += 25; carb += 4; fib += 1; }
+            if (document.getElementById('chip_salsa_corn').checked) { cal += 80; carb += 16; fib += 3; }
+            if (document.getElementById('chip_salsa_red').checked) { cal += 30; carb += 4; fib += 1; }
+
+            document.getElementById('chipTotalCal').innerText = cal;
+            document.getElementById('chipTotalPro').innerText = pro;
+            document.getElementById('chipTotalCarb').innerText = carb;
+            document.getElementById('chipTotalFat').innerText = fat;
+            document.getElementById('chipTotalFib').innerText = fib;
+        }
+
+        function addChipotleToLog() {
+            addFoodToLog({
+                name: 'Chipotle Custom Meal',
+                brand: 'Chipotle',
+                cal: Number(document.getElementById('chipTotalCal').innerText),
+                pro: Number(document.getElementById('chipTotalPro').innerText),
+                carb: Number(document.getElementById('chipTotalCarb').innerText),
+                fat: Number(document.getElementById('chipTotalFat').innerText),
+                fiber: Number(document.getElementById('chipTotalFib').innerText)
+            });
+            closeChipotleModal();
+        }
+
+        /* STARBUCKS CUSTOMIZER LOGIC */
+        function openStarbucksModal() {
+            document.getElementById('starbucksModal').classList.remove('hidden');
+            calcStarbucksMacros();
+        }
+        function closeStarbucksModal() {
+            document.getElementById('starbucksModal').classList.add('hidden');
+        }
+
+        function calcStarbucksMacros() {
+            let cal = 5, pro = 0, carb = 0, fat = 0, fib = 0;
+            const drink = document.getElementById('sbDrink').value;
+            const size = document.getElementById('sbSize').value;
+            const milk = document.getElementById('sbMilk').value;
+            const syrups = Number(document.getElementById('sbSyrups').value) || 0;
+            const foam = document.getElementById('sbFoam').value;
+
+            let sizeMultiplier = 1;
+            if (size === 'tall') sizeMultiplier = 0.75;
+            if (size === 'venti') sizeMultiplier = 1.4;
+            if (size === 'trenta') sizeMultiplier = 1.8;
+
+            if (drink === 'latte') { cal += 190 * sizeMultiplier; pro += 12 * sizeMultiplier; carb += 18 * sizeMultiplier; fat += 7 * sizeMultiplier; }
+            if (drink === 'brown_sugar') { cal += 120 * sizeMultiplier; carb += 20 * sizeMultiplier; fat += 2 * sizeMultiplier; }
+            if (drink === 'macchiato') { cal += 250 * sizeMultiplier; carb += 34 * sizeMultiplier; pro += 10 * sizeMultiplier; fat += 7 * sizeMultiplier; }
+            if (drink === 'matcha') { cal += 200 * sizeMultiplier; carb += 32 * sizeMultiplier; pro += 9 * sizeMultiplier; fat += 5 * sizeMultiplier; }
+            if (drink === 'pink_drink') { cal += 140 * sizeMultiplier; carb += 27 * sizeMultiplier; fat += 2.5 * sizeMultiplier; fib += 1; }
+
+            // Syrups
+            cal += syrups * 20;
+            carb += syrups * 5;
+
+            // Foam
+            if (foam === 'sweet_cream') { cal += 110; fat += 9; carb += 7; }
+            if (foam === 'whipped_cream') { cal += 80; fat += 7; carb += 2; }
+
+            document.getElementById('sbTotalCal').innerText = Math.round(cal);
+            document.getElementById('sbTotalPro').innerText = Math.round(pro);
+            document.getElementById('sbTotalCarb').innerText = Math.round(carb);
+            document.getElementById('sbTotalFat').innerText = Math.round(fat);
+            document.getElementById('sbTotalFib').innerText = Math.round(fib);
+        }
+
+        function addStarbucksToLog() {
+            addFoodToLog({
+                name: 'Starbucks Custom Drink',
+                brand: 'Starbucks',
+                cal: Number(document.getElementById('sbTotalCal').innerText),
+                pro: Number(document.getElementById('sbTotalPro').innerText),
+                carb: Number(document.getElementById('sbTotalCarb').innerText),
+                fat: Number(document.getElementById('sbTotalFat').innerText),
+                fiber: Number(document.getElementById('sbTotalFib').innerText)
+            });
+            closeStarbucksModal();
+        }
+
+        /* CHICK-FIL-A CUSTOMIZER LOGIC */
+        function openChickFilAModal() {
+            document.getElementById('chickFilAModal').classList.remove('hidden');
+            calcCFAMacros();
+        }
+        function closeChickFilAModal() {
+            document.getElementById('chickFilAModal').classList.add('hidden');
+        }
+
+        function calcCFAMacros() {
+            let cal = 0, pro = 0, carb = 0, fat = 0, fib = 0;
+            const entree = document.getElementById('cfaEntree').value;
+            const side = document.getElementById('cfaSide').value;
+            const sauce = document.getElementById('cfaSauce').value;
+            const sauceQty = Number(document.getElementById('cfaSauceQty').value) || 0;
+
+            if (entree === 'sandwich') { cal += 440; pro += 29; carb += 41; fat += 19; fib += 2; }
+            if (entree === 'deluxe') { cal += 500; pro += 32; carb += 43; fat += 22; fib += 3; }
+            if (entree === 'spicy') { cal += 460; pro += 31; carb += 45; fat += 19; fib += 3; }
+            if (entree === 'nuggets_8') { cal += 250; pro += 27; carb += 11; fat += 11; }
+            if (entree === 'nuggets_12') { cal += 380; pro += 40; carb += 16; fat += 17; }
+            if (entree === 'grilled_nuggets_8') { cal += 130; pro += 25; carb += 1; fat += 3; }
+            if (entree === 'grilled_club') { cal += 520; pro += 38; carb += 44; fat += 22; fib += 3; }
+
+            if (side === 'fries_med') { cal += 420; carb += 45; fat += 24; pro += 5; fib += 5; }
+            if (side === 'fries_lg') { cal += 600; carb += 65; fat += 35; pro += 7; fib += 7; }
+            if (side === 'mac_med') { cal += 450; carb += 29; fat += 29; pro += 18; }
+            if (side === 'side_salad') { cal += 160; carb += 13; fat += 10; pro += 6; fib += 3; }
+
+            if (sauce === 'cfa') { cal += 140 * sauceQty; fat += 13 * sauceQty; carb += 7 * sauceQty; }
+            if (sauce === 'polynesian') { cal += 110 * sauceQty; carb += 28 * sauceQty; }
+            if (sauce === 'ranch') { cal += 140 * sauceQty; fat += 15 * sauceQty; carb += 1 * sauceQty; }
+            if (sauce === 'bbq') { cal += 45 * sauceQty; carb += 11 * sauceQty; }
+            if (sauce === 'buffalo') { cal += 25 * sauceQty; fat += 2.5 * sauceQty; carb += 1 * sauceQty; }
+
+            document.getElementById('cfaTotalCal').innerText = cal;
+            document.getElementById('cfaTotalPro').innerText = pro;
+            document.getElementById('cfaTotalCarb').innerText = carb;
+            document.getElementById('cfaTotalFat').innerText = fat;
+            document.getElementById('cfaTotalFib').innerText = fib;
+        }
+
+        function addCFAToLog() {
+            addFoodToLog({
+                name: 'Chick-fil-A Combo',
+                brand: 'Chick-fil-A',
+                cal: Number(document.getElementById('cfaTotalCal').innerText),
+                pro: Number(document.getElementById('cfaTotalPro').innerText),
+                carb: Number(document.getElementById('cfaTotalCarb').innerText),
+                fat: Number(document.getElementById('cfaTotalFat').innerText),
+                fiber: Number(document.getElementById('cfaTotalFib').innerText)
+            });
+            closeChickFilAModal();
+        }
+
+        /* CUSTOM FOOD ITEM DISH CREATION */
+        function openCustomDishModal() {
+            document.getElementById('customDishModal').classList.remove('hidden');
+        }
+        function closeCustomDishModal() {
+            document.getElementById('customDishModal').classList.add('hidden');
+        }
+
+        function saveCustomItem(e) {
+            e.preventDefault();
+            const newItem = {
+                id: 'cust_' + Date.now(),
+                name: document.getElementById('custName').value,
+                brand: document.getElementById('custBrand').value || 'Custom',
+                cal: Number(document.getElementById('custCal').value),
+                pro: Number(document.getElementById('custPro').value),
+                carb: Number(document.getElementById('custCarb').value),
+                fat: Number(document.getElementById('custFat').value),
+                fiber: Number(document.getElementById('custFiber').value)
+            };
+            state.customFoods.push(newItem);
+            saveState();
+            renderCustomDishes();
+            closeCustomDishModal();
+            switchTab('menus');
+        }
+
+        function renderCustomDishes() {
+            const container = document.getElementById('customDishesContainer');
+            if (state.customFoods.length === 0) {
+                container.innerHTML = `<div class="text-center p-6 text-gray-400 text-xs bg-white dark:bg-gray-800 rounded-xl">No saved custom items yet</div>`;
+                return;
+            }
+            container.innerHTML = state.customFoods.map(item => `
+                <div class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl flex items-center justify-between shadow-sm">
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-800 dark:text-gray-100">${item.name}</h4>
+                        <p class="text-[10px] text-gray-500">${item.cal} kcal | P: ${item.pro}g • C: ${item.carb}g • F: ${item.fat}g • Fib: ${item.fiber}g</p>
+                    </div>
+                    <button onclick='addFoodToLog(${JSON.stringify(item)})' class="p-2 bg-brand-500/10 hover:bg-brand-500 text-brand-600 hover:text-white rounded-lg transition text-xs font-semibold">
+                        <i class="fa-solid fa-plus"></i> Add
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        /* BARCODE SCANNER INTEGRATION */
+        function openBarcodeModal() {
+            document.getElementById('barcodeModal').classList.remove('hidden');
+            startScanner();
+        }
+
+        function closeBarcodeModal() {
+            document.getElementById('barcodeModal').classList.add('hidden');
+            stopScanner();
+        }
+
+        function startScanner() {
+            const statusEl = document.getElementById('scannerStatusText');
+            if (statusEl) statusEl.innerText = "Requesting camera permission...";
+
+            if (typeof Html5Qrcode !== 'undefined') {
+                html5QrCodeScanner = new Html5Qrcode("reader");
+                html5QrCodeScanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 150 } },
+                    (decodedText) => {
+                        // Successfully scanned barcode
+                        stopScanner();
+                        fetchBarcodeProduct(decodedText);
+                    },
+                    (errorMessage) => {
+                        // Continuous scanning scanning...
+                    }
+                ).catch(err => {
+                    if (statusEl) statusEl.innerText = "Camera access unavailable or blocked. Enter barcode below.";
+                });
+            } else {
+                if (statusEl) statusEl.innerText = "Camera scanner unavailable. Enter barcode manually.";
+            }
+        }
+
+        function stopScanner() {
+            if (html5QrCodeScanner) {
+                html5QrCodeScanner.stop().then(() => {
+                    html5QrCodeScanner.clear();
+                    html5QrCodeScanner = null;
+                }).catch(err => console.log(err));
+            }
+        }
+
+        function lookupManualBarcode() {
+            const code = document.getElementById('manualBarcode').value.trim();
+            if (code) {
+                fetchBarcodeProduct(code);
+            }
+        }
+
+        /* OPEN FOOD FACTS API FETCHING */
+        async function fetchBarcodeProduct(barcode) {
+            const statusEl = document.getElementById('scannerStatusText');
+            if (statusEl) statusEl.innerText = `Searching Open Food Facts for code: ${barcode}...`;
+
+            try {
+                const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
+                const data = await response.json();
+
+                if (data.status === 1 && data.product) {
+                    const prod = data.product;
+                    const nut = prod.nutriments || {};
+
+                    const scannedFood = {
+                        name: prod.product_name || 'Scanned Item',
+                        brand: prod.brands || 'Open Food Facts',
+                        cal: Math.round(nut['energy-kcal_100g'] || nut['energy-kcal'] || 0),
+                        pro: Math.round(nut.proteins_100g || nut.proteins || 0),
+                        carb: Math.round(nut.carbohydrates_100g || nut.carbohydrates || 0),
+                        fat: Math.round(nut.fat_100g || nut.fat || 0),
+                        fiber: Math.round(nut.fiber_100g || nut.fiber || 0)
+                    };
+
+                    addFoodToLog(scannedFood);
+                    closeBarcodeModal();
+                } else {
+                    alert(`Barcode ${barcode} not found in database. Try searching manually or adding as a custom food.`);
+                }
+            } catch (err) {
+                console.error("Open Food Facts fetch error:", err);
+                alert("Could not reach barcode database. Please check connection.");
+            }
+        }
+    </script>
 </body>
 </html>
